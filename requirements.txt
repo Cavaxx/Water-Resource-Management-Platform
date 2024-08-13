@@ -5,3 +5,8 @@ gcsfs
 graphviz
 dask[complete]
 jupyterlab<5
+pandas
+requests
+pymongo
+schedule
+
