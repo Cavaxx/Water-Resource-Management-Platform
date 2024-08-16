@@ -41,19 +41,19 @@ main {
 }
 
 .service-button {
-    background-color: white;
+    background-color: #333;
     border: 2px solid #333;
     border-radius: 8px;
     width: 30%;
     text-decoration: none;
-    color: #333;
+    color: white;
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .service-button:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 15px white;
 }
 
 .service-content {
