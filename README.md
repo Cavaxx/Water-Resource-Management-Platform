@@ -7,5 +7,6 @@ This project aims to design a Big Data system for optimizing water resource mana
 - `scripts/`: Data processing scripts
 - `models/`: Machine learning models
 - `docs/`: Documentation
+- `Interface/`: UI
 
 
