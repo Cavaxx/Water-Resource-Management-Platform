@@ -1,0 +1,8 @@
+API:
+    wether api:
+        api_key: "" # add your own api key
+        base_URL: "https://openweathermap.org/api"
+
+    dam api:
+        api_key: ""
+        base_URL: ""
