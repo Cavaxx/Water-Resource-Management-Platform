@@ -161,3 +161,14 @@
 2024-09-18 11:29:40,340:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11700.json, status code: 500
 2024-09-19 09:04:50,110:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/18705.json, status code: 500
 2024-10-04 07:07:23,571:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/18729.json, status code: 500
+2024-10-06 01:34:31,211:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11732.json, status code: 500
+2024-10-06 15:56:10,121:INFO:{"message": "Waiting for suitable server to become available", "selector": "<function writable_server_selector at 0xffffa868a4d0>", "operation": "createIndexes", "topologyDescription": "<TopologyDescription id: 6702b31acd9e2235a1c2367e, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None>]>", "clientId": {"$oid": "6702b31acd9e2235a1c2367e"}, "remainingTimeMS": 29}
+2024-10-09 14:40:21,688:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/42435.json, status code: 500
+2024-10-11 09:54:42,874:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11773.json, status code: 500
+2024-10-12 00:49:47,606:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11793.json, status code: 500
+2024-10-19 13:39:39,419:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/32215.json, status code: 500
+2024-10-24 18:00:16,977:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11732.json, status code: 500
+2024-10-27 05:00:19,816:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/18712.json, status code: 500
+2024-10-28 00:20:01,099:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11801.json, status code: 500
+2024-10-29 01:24:09,325:ERROR:Error fetching data from https://www.floods.it/api/v1/monitoring/28210.json: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+2024-11-05 23:30:31,144:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/42447.json, status code: 500
