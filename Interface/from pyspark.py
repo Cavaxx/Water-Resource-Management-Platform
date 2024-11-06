@@ -1,5 +1,7 @@
 from pyspark.sql import SparkSession
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
+
+
 
 app = Flask(__name__)
 
@@ -34,6 +36,29 @@ except Exception as e:
 
 # Flask route to handle search
 @app.route('/search', methods=['GET'])
+# Define routes to render HTML templates
+@app.route('/')
+def home():
+    return render_template('Website.html')
+
+@app.route('/map')
+def map_page():
+    return render_template('map.html')
+
+@app.route('/contacts')
+def contacts_page():
+    return render_template('contacts.html')
+
+@app.route('/services')
+def services_page():
+    return render_template('services.html')
+
+# Your search route and other Flask logic go here
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5001)
+
+
 def search_river():
     river_name = request.args.get('name')
     if river_name:
@@ -67,4 +92,4 @@ def search_river():
 
 if __name__ == '__main__':
     # Run the Flask app on an alternative port (5001) to avoid conflicts
-    app.run(debug=True, port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5001)
