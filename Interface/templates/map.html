@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trentino Water Facilities Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="Style_map.css"> 
+    <!-- Link to the CSS file in the static directory -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style_map.css') }}">
+    <!-- Link to the JavaScript file in the static directory -->
+    <script src="{{ url_for('static', filename='map_script.js') }}"></script>
+
+    <!-- Inline CSS for map container -->
     <style>
         #map {
             height: 80vh; 
@@ -14,20 +18,24 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
     <nav>
-        <a href="Website.html">Search your city</a>
-        <a href="services.html">Our Services</a>
-        <a href="contacts.html">Contacts</a>
+        <a href="{{ url_for('home') }}">Search your city</a>
+        <a href="{{ url_for('services_page') }}">Our Services</a>
+        <a href="{{ url_for('contacts_page') }}">Contacts</a>
     </nav>
 
+    <!-- Map Container -->
     <div id="map"></div>
 
+    <!-- Footer Section -->
     <footer>
         <p>&copy; Water resources management platform for the 
-            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project</p>
+            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project
+        </p>
     </footer>
 
+    <!-- Leaflet.js for map functionalities -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="map_script.js"></script>
 </body>
 </html>
