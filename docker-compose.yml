@@ -10,8 +10,58 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - wm-network
+    # Flask API service
+  web:
+    build: .
+    container_name: flask_app
+    ports:
+      - "5001:5001"
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077  # Pointing Spark to the master node
+      - MONGO_URI=mongodb://mongo:27017
+    depends_on:
+      - spark-master
+      - mongo
+    networks:
+      - wm-network
+
+  # Spark Master Node
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "8080:8080"   # Spark Web UI
+      - "7077:7077"   # Spark Master Port
+    networks:
+      - wm-network
+
+  # Spark Worker Node
+  spark-worker:
+    image: bitnami/spark:latest
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    networks:
+      - wm-network
+
+
+
+
+
+
 
 
 
 volumes:
   mongo-data:
+
+networks:
+  wm-network:
+    driver: bridge
