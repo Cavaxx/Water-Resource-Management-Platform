@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template
 
 
 
+
 app = Flask(__name__)
 
 
@@ -36,9 +37,13 @@ except Exception as e:
 
 # Flask route to handle search
 @app.route('/search', methods=['GET'])
+
+
+
 # Define routes to render HTML templates
 @app.route('/')
 def home():
+    print("Home route accessed") 
     return render_template('Website.html')
 
 @app.route('/map')

@@ -172,3 +172,4 @@
 2024-10-28 00:20:01,099:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11801.json, status code: 500
 2024-10-29 01:24:09,325:ERROR:Error fetching data from https://www.floods.it/api/v1/monitoring/28210.json: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
 2024-11-05 23:30:31,144:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/42447.json, status code: 500
+2024-11-07 20:24:40,723:ERROR:Failed to fetch data from https://www.floods.it/api/v1/monitoring/11808.json, status code: 500
