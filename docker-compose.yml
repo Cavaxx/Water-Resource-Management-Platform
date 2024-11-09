@@ -3,17 +3,19 @@ version: '3.8'
 services:
   flask_app:
     build:
-      context: ./Interface  # The directory containing Dockerfile and app files
-      
+      context: ./Interface  # The directory containing Dockerfile and app files for Flask
     container_name: flask_app_container
     ports:
       - "5001:5001"
     volumes:
-      - .:/app  # Mounts the current directory to /app in the container
+      - ./Interface:/app  # Ensure only the Flask app directory is mounted to avoid conflicts
     networks:
       - wm-network
     depends_on:
       - mongo
+    environment:
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+
 
   mongo:
     image: mongo:latest
@@ -24,6 +26,22 @@ services:
       - mongo-data:/data/db
     networks:
       - wm-network
+
+  app:
+    build:
+      context: .
+      dockerfile: scr/data_management/Dockerfile
+    container_name: fetch_insert_data_container
+    volumes:
+      - .:/app  # Mounts the current directory to /app for the data script
+    ports:
+      - "80:80"
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - PYTHONUNBUFFERED=1
 
 volumes:
   mongo-data:

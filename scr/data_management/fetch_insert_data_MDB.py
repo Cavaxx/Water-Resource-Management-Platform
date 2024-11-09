@@ -14,10 +14,12 @@ logging.basicConfig(filename='water_management.log', level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # MongoDB setup
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017/")
 client = MongoClient(MONGO_URI)
 db = client["water_management"]
 collection = db["sensor_data"]
+
+
 
 # Create indexes for better performance
 collection.create_index([("timestamp", 1), ("site", 1), ("value", 1)], unique=True)
