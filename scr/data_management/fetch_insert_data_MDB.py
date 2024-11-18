@@ -23,7 +23,7 @@ collection = db["sensor_data"]
 
 # Create indexes for better performance
 collection.create_index([("timestamp", 1), ("site", 1), ("value", 1)], unique=True)
-csv_file_path = "/home/ubuntu/Data_Science/Water-Resource-Management-Platform/data/index_of_sensors.csv"
+csv_file_path = "data/index_of_sensors.csv"
 
 def fetch_and_store_data():
     try:
