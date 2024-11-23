@@ -42,6 +42,24 @@ services:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
+  
+    weather_fetcher:
+    build:
+      context: .
+      dockerfile: scr/data_management/Dockerfile
+    container_name: weather_fetcher_container
+    volumes:
+      - .:/app  # Mounts the current directory to /app for the weather script
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - WEATHER_API_KEY=your_weather_api_key
+      - LOCATION=London
+    command: ["python", "/app/scr/data_management/fetch_weather_data.py"]
+
 
 volumes:
   mongo-data:
@@ -49,3 +67,12 @@ volumes:
 networks:
   wm-network:
     driver: bridge
+
+
+###### REASONING for both CDM and command in Dockerfile and docker-compose
+#Including both CMD in the Dockerfile and command in docker-compose.yml is a recommended approach when:
+
+#    You want a default behavior for standalone image use (CMD).
+#    You need flexibility for different workflows in docker-compose (command).
+
+#This keeps your setup efficient, reusable, and adaptable for future expansions.
