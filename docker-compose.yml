@@ -16,7 +16,6 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
 
-
   mongo:
     image: mongo:latest
     container_name: mongodb_container
@@ -27,39 +26,51 @@ services:
     networks:
       - wm-network
 
-  app:
+  # Service for Inserting Data into MongoDB
+  fetch_insert_data:
     build:
-      context: .
-      dockerfile: scr/data_management/Dockerfile
+      context: ./data_management  # Set context to data_management directory
+      dockerfile: Dockerfile      # Reference Dockerfile within data_management/
     container_name: fetch_insert_data_container
-    volumes:
-      - .:/app  # Mounts the current directory to /app for the data script
-    ports:
-      - "80:80"
     depends_on:
       - mongo
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
-  
-    weather_fetcher:
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+    command: ["python", "fetch_insert_data_MDB.py"]  # Correct script path
+
+  # Service for Inserting Facilities Data into MongoDB
+  fetch_insert_facilitiesdata:
     build:
-      context: .
-      dockerfile: scr/data_management/Dockerfile
-    container_name: weather_fetcher_container
-    volumes:
-      - .:/app  # Mounts the current directory to /app for the weather script
+      context: ./data_management  # Set context to data_management directory
+      dockerfile: Dockerfile      # Reference Dockerfile within data_management/
+    container_name: fetch_insert_facilitiesdata_container
     depends_on:
       - mongo
     networks:
       - wm-network
     environment:
+      - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
-      - WEATHER_API_KEY=your_weather_api_key
-      - LOCATION=London
-    command: ["python", "/app/scr/data_management/fetch_weather_data.py"]
+    command: ["python", "fetch_insert_facilitesdata_MDB.py"]  # Correct script path
 
+  # Service for Fetching Weather Data
+  fetch_weather_data:
+    build:
+      context: ./data_management  # Set context to data_management directory
+      dockerfile: Dockerfile      # Reference Dockerfile within data_management/
+    container_name: fetch_weather_data_container
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - WEATHER_API_KEY=70e51b1fbf1d3d148ea5e8e36dbfd00e  # Hardcoded API key
+    command: ["python", "fetch_weather_data.py"]  # Correct script path
 
 volumes:
   mongo-data:
@@ -67,12 +78,3 @@ volumes:
 networks:
   wm-network:
     driver: bridge
-
-
-###### REASONING for both CDM and command in Dockerfile and docker-compose
-#Including both CMD in the Dockerfile and command in docker-compose.yml is a recommended approach when:
-
-#    You want a default behavior for standalone image use (CMD).
-#    You need flexibility for different workflows in docker-compose (command).
-
-#This keeps your setup efficient, reusable, and adaptable for future expansions.

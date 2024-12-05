@@ -17,16 +17,14 @@ logging.basicConfig(filename='water_management.log', level=logging.INFO,
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017/")
 client = MongoClient(MONGO_URI)
 db = client["water_management"]
-sensor_collection = db["sensor_data"]
+collection = db["sensor_data"]
 
 
 
 # Create indexes for better performance
-sensor_collection.create_index([("timestamp", 1), ("site", 1), ("value", 1)], unique=True)
-csv_file_path = "data/index_of_sensors.csv"
+collection.create_index([("timestamp", 1), ("site", 1), ("value", 1)], unique=True)
+csv_file_path = "Water-Resource-Management-Platform/data/index_of_sensors.csv"
 
-
-# Fetching function
 def fetch_and_store_data():
     try:
         if not os.path.isfile(csv_file_path):
@@ -100,7 +98,7 @@ def process_and_store_data(timestamp_epoch, value, latitude, longitude, site, wa
         }
 
         # Insert document into MongoDB
-        sensor_collection.update_one(
+        collection.update_one(
             {"timestamp": timestamp_human, "site": site, "value": value},
             {"$set": document},
             upsert=True
