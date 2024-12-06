@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results for "{{ query }}"</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style_main.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('map_page') }}">Map</a>
+        <a href="{{ url_for('services_page') }}">Our Services</a>
+        <a href="{{ url_for('contacts_page') }}">Contacts</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <h2>Search Results for "{{ query }}"</h2>
+        
+        {% if river_data %}
+            <h3>River Data:</h3>
+            <ul>
+                {% for data in river_data %}
+                    <li>
+                        <strong>Water Body:</strong> {{ data.water_body }}<br>
+                        <strong>Value:</strong> {{ data.value }}<br>
+                        <strong>Location:</strong> ({{ data.latitude }}, {{ data.longitude }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No river data found.</p>
+        {% endif %}
+        
+        {% if facility_data %}
+            <h3>Facility Data:</h3>
+            <ul>
+                {% for facility in facility_data %}
+                    <li>
+                        <strong>Facility:</strong> {{ facility['nome_sito'] }}<br>
+                        <strong>Type:</strong> {{ facility['tipo'] }}<br>
+                        <strong>Location:</strong> ({{ facility['lat'] }}, {{ facility['long'] }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No facility data found.</p>
+        {% endif %}
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; Water resources management platform for the 
+            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project
+        </p>
+    </footer>
+</body>
+</html>

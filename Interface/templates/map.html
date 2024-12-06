@@ -6,9 +6,7 @@
     <title>Trentino Water Facilities Map</title>
     <!-- Link to the CSS file in the static directory -->
     <link rel="stylesheet" href="{{ url_for('static', filename='Style_map.css') }}">
-    <!-- Link to the JavaScript file in the static directory -->
-    <script src="{{ url_for('static', filename='map_script.js') }}"></script>
-
+    
     <!-- Inline CSS for map container -->
     <style>
         #map {
@@ -37,5 +35,8 @@
 
     <!-- Leaflet.js for map functionalities -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Link to the JavaScript file in the static directory -->
+    <script src="{{ url_for('static', filename='map_script.js') }}"></script>
 </body>
 </html>
