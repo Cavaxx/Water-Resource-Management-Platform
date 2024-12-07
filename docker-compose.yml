@@ -9,6 +9,7 @@ services:
       - "5001:5001"
     volumes:
       - ./Interface:/app  # Ensure only the Flask app directory is mounted to avoid conflicts
+      - ./data:/app/data
     networks:
       - wm-network
     depends_on:
@@ -71,6 +72,20 @@ services:
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
       - WEATHER_API_KEY=70e51b1fbf1d3d148ea5e8e36dbfd00e  # Hardcoded API key
     command: ["python", "fetch_weather_data.py"]  # Correct script path
+  
+  # mqtt_broker:
+  #   build:
+  #     context: ./data_management 
+  #     dockerfile: Dockerfile
+  #   container_name: mqtt_broker_container
+  #   depends_on:
+  #     - mongo
+  #   networks:
+  #     - wm-network
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #     - MONGO_URI=mongodb://mongodb_container:27017/water_management
+  #   command: ["python", "mqtt_river_fetcher.py"]
 
 volumes:
   mongo-data:

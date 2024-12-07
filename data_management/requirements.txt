@@ -10,4 +10,4 @@ requests
 pymongo
 schedule
 pytz
-
+paho-mqtt

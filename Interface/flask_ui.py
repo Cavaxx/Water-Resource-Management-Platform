@@ -5,12 +5,12 @@ import pandas as pd
 app = Flask(__name__)
 
 # MongoDB setup
-mongo_client = MongoClient("mongodb://127.0.0.1:27017/")
+mongo_client = MongoClient("mongodb://mongo:27017/")
 db = mongo_client["water_management"]
 rivers_collection = db["sensor_data"]
 
 # Load CSV data
-csv_path = "/home/ubuntu/Data_Science/Water-Resource-Management-Platform/data/water_facilities_trentino.csv"
+csv_path = "/app/data/water_facilities_trentino.csv"
 try:
     facilities_df = pd.read_csv(csv_path)
     facilities_df.set_index("id_sito", inplace=True)

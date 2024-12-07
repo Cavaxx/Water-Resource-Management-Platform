@@ -27,7 +27,11 @@
     <main>
         <h2>Check your city status:</h2>
         <div class="search-container">
-            <input type="text" placeholder="Search..." class="search-bar">
+            <!-- Wrap the input in a form with action pointing to the search route -->
+            <form action="{{ url_for('search_river') }}" method="get">
+                <input type="text" name="name" placeholder="Search..." class="search-bar" required>
+                <button type="submit" class="search-button">Search</button>
+            </form>
         </div>
     </main>
     
