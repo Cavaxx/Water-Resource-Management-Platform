@@ -73,6 +73,99 @@ services:
       - WEATHER_API_KEY=70e51b1fbf1d3d148ea5e8e36dbfd00e  # Hardcoded API key
     command: ["python", "fetch_weather_data.py"]  # Correct script path
   
+  #Service for generating and inserting synthetic data into MongooDB DB
+  synthetic_weather_data:
+    build:
+      context: ./data_management  # Directory containing Dockerfile and the script
+      dockerfile: Dockerfile
+    container_name: synthetic_weather_data_service
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=weather_db
+      - COLLECTION_NAME=synthetic_weather_data
+    command: ["python", "synthetic_weather_data.py"]
+  
+  # Spark Master
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master-container
+    networks:
+      - wm-network
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_PORT=7077
+    ports:
+      - "7077:7077"   # Spark master port
+      - "8080:8080"   # Spark master web UI
+    volumes:
+      - ./spark_app:/app  # mount your code or job scripts here
+
+  # Spark Worker 1
+  spark-worker-1:
+    image: bitnami/spark:latest
+    container_name: spark-worker1-container
+    networks:
+      - wm-network
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+    ports:
+      - "8081:8081"   # Worker web UI
+    volumes:
+      - ./spark_app:/app
+
+  # Spark Worker 2
+  spark-worker-2:
+    image: bitnami/spark:latest
+    container_name: spark-worker2-container
+    networks:
+      - wm-network
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+    ports:
+      - "8082:8081"   # Another worker UI on a different host port
+    volumes:
+      - ./spark_app:/app
+
+  # Service for Running the SPEI Calculation
+  # Option 1: Direct spark-submit from a container:
+  spei_calculator:
+    image: bitnami/spark:latest  # or a custom image with your code
+    container_name: spei-calculator-container
+    depends_on:
+      - mongo
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
+    networks:
+      - wm-network
+    volumes:
+      - ./spark_app:/app
+    # We'll run spark-submit referencing the master URL and your script:
+    command: >
+      /opt/bitnami/spark/bin/spark-submit
+      --master spark://spark-master:7077
+      --driver-memory 1g
+      /.data_management/spei_calculator.py
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=water_management
+      - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
+      - OUTPUT_COLLECTION=SPEI_PET
   # mqtt_broker:
   #   build:
   #     context: ./data_management 

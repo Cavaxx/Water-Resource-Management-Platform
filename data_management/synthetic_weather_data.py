@@ -1,117 +1,61 @@
 import json
 import random
 import time
-import numpy as np  
+import numpy as np
+from pymongo import MongoClient
 
-#some simulation data were collected from the following source: https://weatherspark.com/s/69788/3/Average-Winter-Weather-in-Trento-Italy#Figures-PrecipitationProbability
+# MongoDB connection details
+MONGO_URI = "mongodb://mongo:27017/"
+DB_NAME = "water_management"
+COLLECTION_NAME = "synthetic_weather_data"
+
+# Connect to MongoDB
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+collection = db[COLLECTION_NAME]
+
+# Generate synthetic weather data
 city_data = {}
-city_summaries = {}
 current_timestamp = int(time.time())
 
-# Read the JSON file and process data line by line
-with open("../data/weather_data.json", "r") as file:
-    for line in file:
-        data = json.loads(line)
-        city_name = data["city"]
-        coordinates = data["coordinates"]
-
-        if city_name not in city_data:
-            city_data[city_name] = {
-                "coordinates": coordinates,
-                "temperatures": [],
-                "feels_like": [],
-                "temp_min": [],
-                "temp_max": [],
-                "pressure": [],
-                "humidity": [],
-                "rain": [],
-                "wind": []
-            }
-
-        # Append weather data to the respective lists
-        city_data[city_name]["temperatures"].append(data["temperature"])
-        city_data[city_name]["feels_like"].append(data["feels_like"])
-        city_data[city_name]["temp_min"].append(data["temp_min"])
-        city_data[city_name]["temp_max"].append(data["temp_max"])
-        city_data[city_name]["pressure"].append(data["pressure"])
-        city_data[city_name]["humidity"].append(data["humidity"])
-        city_data[city_name]["rain"].append(data.get("rain", 0))  # Default rain to 0 if missing
-        city_data[city_name]["wind"].append(data.get("wind_speed", 0))  # Default wind_speed to 0 if missing
-
-# Generate city summaries (averages)
-for city_name, details in city_data.items():
-    city_summaries[city_name] = {
-        "coordinates": details["coordinates"],
-        "avg_temperature": sum(details["temperatures"]) / len(details["temperatures"]),
-        "avg_feels_like": sum(details["feels_like"]) / len(details["feels_like"]),
-        "avg_temp_min_deviation": (
-            sum(details["temperatures"]) / len(details["temperatures"])
-            - sum(details["temp_min"]) / len(details["temp_min"])
-        ),
-        "avg_temp_max_deviation": (
-            sum(details["temp_max"]) / len(details["temp_max"])
-            - sum(details["temperatures"]) / len(details["temperatures"])
-        ),
-        "avg_pressure": sum(details["pressure"]) / len(details["pressure"]),
-        "avg_humidity": sum(details["humidity"]) / len(details["humidity"]),
-        #"avg_rain": sum(rain_values) / len(rain_values) if rain_values else 1.2,
-        "avg_wind_speed": sum(details["wind"]) / len(details["wind"]) if details["wind"] else 0
-    }
-
-# Generate synthetic data
-synthetic_data = []
-weather_descriptions = {
-    "Clear": ["clear sky", "few clouds"],
-    "Clouds": ["few clouds", "scattered clouds", "broken clouds", "overcast clouds"],
-    "Rain": ["light rain", "moderate rain", "heavy intensity rain"],
-    "Drizzle": ["light drizzle", "drizzle", "heavy drizzle"],
-    "Snow": ["light snow", "snow", "heavy snow"]
+cities = ["Trento", "Rovereto", "Pergine Valsugana", "Arco", "Riva del Garda"]
+coordinates = {
+    "Trento": {"lon": 11.1211, "lat": 46.0679},
+    "Rovereto": {"lon": 11.0387, "lat": 45.8896},
+    "Pergine Valsugana": {"lon": 11.238, "lat": 46.065},
+    "Arco": {"lon": 10.8867, "lat": 45.9177},
+    "Riva del Garda": {"lon": 10.8412, "lat": 45.8858},
 }
 
-# Rain simulation parameters
-rain_probability = 0.19
-mean_rainfall = 2.1
+# Parameters for data generation
+num_days = 100
+weather_conditions = ["Clear", "Clouds", "Rain", "Drizzle", "Snow"]
+mean_temp = 15
+mean_rainfall = 2
 
-for city_name, summary in city_summaries.items():
-    for _ in range(100):
-        weather_main = random.choice(list(weather_descriptions.keys()))
-        description = random.choice(weather_descriptions[weather_main])
+synthetic_data = []
 
-        # Determine if rain occurs and simulate rainfall
-        is_rainy = np.random.binomial(1, rain_probability)
-        rain_amount = (
-            round(np.random.gamma(2, mean_rainfall / 2), 2) if is_rainy else 0
-        )
+for city in cities:
+    for day in range(num_days):
+        weather = random.choice(weather_conditions)
+        temp = round(random.gauss(mean_temp, 5), 2)
+        temp_min = round(temp - random.uniform(0, 5), 2)
+        temp_max = round(temp + random.uniform(0, 5), 2)
+        rain = round(np.random.gamma(2, mean_rainfall / 2), 2) if weather in ["Rain", "Drizzle"] else 0
 
         synthetic_entry = {
-            "city": city_name,
-            "coordinates": summary["coordinates"],
-            "weather": {
-                "id": random.choice([800, 801, 802, 803, 804]),
-                "main": weather_main,
-                "description": description
-            },
-            "temperature": round(random.gauss(summary["avg_temperature"], 5), 2),
-            "feels_like": round(random.gauss(summary["avg_feels_like"], 5), 2),
-            "temp_min": round(random.gauss(summary["avg_temperature"] - summary["avg_temp_min_deviation"], 5), 2),
-            "temp_max": round(random.gauss(summary["avg_temperature"] + summary["avg_temp_max_deviation"], 5), 2),
-            "pressure": round(random.gauss(summary["avg_pressure"], 1), 2),
-            "humidity": round(random.gauss(summary["avg_humidity"], 5), 2),
-            "wind": {
-                "speed": round(random.gauss(summary["avg_wind_speed"], 5), 2),
-                "deg": random.uniform(0, 360),
-                "gust": round(random.gauss(summary["avg_wind_speed"] * 1.5, 5), 2)
-            },
-            "rain": rain_amount,  # Add simulated rainfall
-            "timestamp": current_timestamp - 24 * 3600 * _
+            "city": city,
+            "coordinates": coordinates[city],
+            "weather": weather,
+            "temperature": temp,
+            "temp_min": temp_min,
+            "temp_max": temp_max,
+            "rain": rain,
+            "timestamp": current_timestamp - day * 86400,
         }
         synthetic_data.append(synthetic_entry)
 
-# Print synthetic data for inspection
-print(synthetic_data)
+# Insert synthetic data into MongoDB
+collection.insert_many(synthetic_data)
+print(f"Inserted {len(synthetic_data)} records into the '{COLLECTION_NAME}' collection.")
 
-# Save synthetic data to a file
-with open("synthetic_weather_data.json", "w") as output_file:
-    json.dump(synthetic_data, output_file, indent=4)
-
-print("Synthetic data generation complete. Saved to 'synthetic_weather_data.json'.")
