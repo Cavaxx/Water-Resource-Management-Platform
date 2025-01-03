@@ -22,7 +22,8 @@ def initialize_spark():
         SparkSession.builder
         .appName("SPEI_Calculation")
         # .master(...)  # Typically you rely on --master in spark-submit OR spark cluster environment
-        .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1")
+        .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.1.3")
+
         .getOrCreate()
     )
     return spark
