@@ -1,23 +1,25 @@
-# spark_app/Dockerfile.spark
+# Use the Bitnami Spark 3.5 base image
+FROM bitnami/spark:3.5
 
-# Instead of :latest, choose a Spark image version that uses Python <3.12
-FROM bitnami/spark:3.4.1
-
-# Switch to root user
+# Switch to the root user
 USER root
 
-COPY requirements.txt /tmp/requirements.txt
-COPY mongo-spark-connector_2.12-10.1.3.jar /opt/bitnami/spark/jars/
+# Install wget
+RUN apt-get update && apt-get install -y wget
 
+# Create a cache directory and set permissions
+RUN mkdir -p /.cache && chmod -R 777 /.cache
 
-# If needed, install OS libraries for netCDF or xarray
-# RUN apt-get update && apt-get install -y libhdf5-dev libnetcdf-dev && rm -rf /var/lib/apt/lists/*
+# Create a directory for your ML scripts
+RUN mkdir -p /opt/bitnami/spark/ML
 
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Copy your ML scripts into the image
+COPY src/ML/ /opt/bitnami/spark/ML
 
-WORKDIR /app
-COPY . /app
+RUN pip install --no-cache-dir -r /opt/bitnami/spark/ML/requirements.txt
 
-USER 1001
-EXPOSE 7077 8080 8081
+# Download the PostgreSQL JDBC driver
+RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar
 
+# Set the default command to start your PySpark application
+CMD ["/opt/bitnami/spark/bin/spark-submit", "--master", "local[*]", "--deploy-mode", "client", "/opt/bitnami/spark/ML/mlprova.py"]

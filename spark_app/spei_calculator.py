@@ -19,13 +19,12 @@ def initialize_spark():
     (requires the MongoDB Spark connector).
     """
     spark = (
-        SparkSession.builder
-        .appName("SPEI_Calculation")
-        # .master(...)  # Typically you rely on --master in spark-submit OR spark cluster environment
-        .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.1.3")
+    SparkSession.builder
+    .appName("SPEI_Calculation")
+    .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.2.5")
+    .getOrCreate()
+)
 
-        .getOrCreate()
-    )
     return spark
 
 
