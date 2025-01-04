@@ -19,12 +19,12 @@ def initialize_spark():
     (requires the MongoDB Spark connector).
     """
     spark = (
-    SparkSession.builder
-    .appName("SPEI_Calculation")
-    .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.2.5")
-    .getOrCreate()
-)
-
+        SparkSession.builder
+        .appName("SPEI_Calculation")
+        # Make sure we specify a 10.x version of the MongoDB Spark Connector
+        .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:10.3.0")
+        .getOrCreate()
+    )
     return spark
 
 
@@ -33,7 +33,7 @@ def load_data(spark, mongo_uri, db_name, collection_names):
     Load weather data from multiple MongoDB collections into a single DataFrame.
     
     :param spark: SparkSession
-    :param mongo_uri: Base Mongo URI, e.g., "mongodb://mongo:27017/"
+    :param mongo_uri: Base Mongo URI, e.g. "mongodb://mongo:27017/"
     :param db_name: Database name, e.g. "weather_db"
     :param collection_names: List of collection names, e.g. ["weather_data", "synthetic_weather_data"]
     :return: A unified Spark DataFrame
@@ -42,7 +42,8 @@ def load_data(spark, mongo_uri, db_name, collection_names):
     for collection_name in collection_names:
         logger.info(f"Loading from collection: {collection_name}")
         df = (
-            spark.read.format("mongo")
+            # For connector 10.x, the correct format is "mongodb"
+            spark.read.format("mongodb")  
             .option("uri", f"{mongo_uri}{db_name}.{collection_name}")
             .load()
         )
@@ -121,7 +122,7 @@ def save_results_to_mongo(spark, pandas_df, mongo_uri, db_name, collection_name)
         return
 
     spei_df = spark.createDataFrame(pandas_df)
-    spei_df.write.format("mongo") \
+    spei_df.write.format("mongodb") \
         .option("uri", f"{mongo_uri}{db_name}.{collection_name}") \
         .mode("append") \
         .save()
