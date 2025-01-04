@@ -3,10 +3,11 @@ import logging
 import sys
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, sum as spark_sum, avg as spark_avg
+from pyspark.sql import functions as F
 from pyspark.sql.types import FloatType
-from climate_indices import compute
+from pyspark.sql.functions import col, sum as spark_sum, avg as spark_avg
 import pandas as pd
+from climate_indices import compute
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -32,31 +33,35 @@ def initialize_spark():
 def load_data(spark, mongo_uri, db_name, collection_names):
     """
     Load weather data from multiple MongoDB collections into a single DataFrame,
-    using the updated 10.x Mongo Spark Connector syntax.
-    
-    :param spark: SparkSession
-    :param mongo_uri: Base Mongo URI, e.g. "mongodb://mongo:27017"
-    :param db_name: e.g. "weather_db"
-    :param collection_names: List of collection names, e.g. ["weather_data", "synthetic_weather_data"]
-    :return: A unified Spark DataFrame
+    ensuring they have the same columns (city, rain, temp_min, temp_max).
+    This avoids union schema mismatch errors.
     """
+    # The columns we actually need for the aggregator:
+    required_cols = ["city", "rain", "temp_min", "temp_max"]
+
     dataframes = []
     for coll_name in collection_names:
         logger.info(f"Loading from collection: {coll_name}")
         df = (
             spark.read.format("mongodb")
-            # For 10.x connector, specify these keys:
             .option("spark.mongodb.read.connection.uri", mongo_uri)
             .option("spark.mongodb.read.database", db_name)
             .option("spark.mongodb.read.collection", coll_name)
             .load()
         )
+        # For each required column not present, add it as null/float
+        for col_name in required_cols:
+            if col_name not in df.columns:
+                df = df.withColumn(col_name, F.lit(None).cast(FloatType()))
+
+        # Now select exactly these columns, in a consistent order
+        df = df.select(*required_cols)
         dataframes.append(df)
 
     if not dataframes:
         raise ValueError("No collections to load. Check INPUT_COLLECTIONS environment variable.")
 
-    # Combine all dataframes via union
+    # Combine via union now that columns match
     unified_df = dataframes[0]
     for df in dataframes[1:]:
         unified_df = unified_df.union(df)
@@ -68,7 +73,7 @@ def calculate_pet_and_spei(df):
     """
     Calculate PET (Potential Evapotranspiration) and SPEI (Standardized Precipitation-Evapotranspiration Index)
     for each city in the DataFrame.
-    
+
     Requires columns: city, rain, temp_min, temp_max.
     """
     required_cols = {"rain", "temp_min", "temp_max"}
@@ -78,7 +83,7 @@ def calculate_pet_and_spei(df):
 
     # Fill missing rain with 0.0
     df = df.withColumn("precipitation", col("rain").cast(FloatType()).na.fill(0.0))
-    
+
     # Aggregate by city
     aggregated_df = df.groupBy("city").agg(
         spark_avg("temp_min").alias("avg_temp_min"),
@@ -141,7 +146,7 @@ if __name__ == "__main__":
     OUTPUT_COLLECTION = os.getenv("OUTPUT_COLLECTION", "SPEI_PET")
 
     try:
-        # 1. Load data from multiple collections
+        # 1. Load data from multiple collections, ensuring same columns
         weather_df = load_data(spark, MONGO_URI, DB_NAME, INPUT_COLLECTIONS)
 
         # 2. Calculate PET and SPEI
