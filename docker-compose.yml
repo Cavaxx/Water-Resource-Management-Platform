@@ -11,7 +11,7 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - ./Interface:/app       # Mount your Flask app directory
+      - ./Interface:/app   # Mount your Flask app directory
       - ./data:/app/data
     networks:
       - wm-network
@@ -92,65 +92,67 @@ services:
     command: ["python", "synthetic_weather_data.py"]
 
   # --------------------------------------------------------------------------
-  # SPARK CLUSTER: MASTER + WORKERS (all built from spark_app Dockerfile)
+  # SPARK CLUSTER (MASTER + WORKERS)
   # --------------------------------------------------------------------------
   spark-master:
     build:
       context: ./spark_app
-      dockerfile: Dockerfile.spark
-    image: custom-spark:latest
-    container_name: spark-master-container
+      dockerfile: dockerfiles/Dockerfile.SPEIMaster
+      
+    container_name: spark-master
     networks:
       - wm-network
     environment:
-      - SPARK_MODE=master
-      - SPARK_MASTER_HOST=spark-master
-      - SPARK_MASTER_PORT=7077
+      SPARK_MODE: master
+      SPARK_MASTER_HOST: spark-master
+      SPARK_MASTER_PORT: 7077
+      SPARK_MASTER_WEBUI_PORT: 8080
     ports:
-      - "7077:7077"   # Spark master port
-      - "8080:8080"   # Spark master web UI
-    volumes:
-      - ./spark_app:/app   # If you want live code changes to reflect
-    # Otherwise the built image already has /app from Dockerfile
+      - "9090:8080"  # Spark Master UI
+      - "7077:7077"  # Spark Master RPC
+    # If you want Master to come up after Mongo or others, you can do:
+    depends_on:
+      - mongo
 
   spark-worker-1:
-    image: custom-spark:latest
-    container_name: spark-worker1-container
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-1
     networks:
       - wm-network
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-    ports:
-      - "8081:8081"   # Worker web UI
-    volumes:
-      - ./spark_app:/app
 
   spark-worker-2:
-    image: custom-spark:latest
-    container_name: spark-worker2-container
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-2
     networks:
       - wm-network
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-    ports:
-      - "8082:8081"   # Another worker UI on a different host port
-    volumes:
-      - ./spark_app:/app
 
   # --------------------------------------------------------------------------
   # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
+    # If you want to reuse the same Spark Master/Worker image with the JARs pre-baked:
+    #   e.g., "custom-spark:latest" or "bitnami/spark:3.5" but with jars
+    # Alternatively, build your own Dockerfile for it. For now let's say:
     image: custom-spark:latest
     container_name: spei-calculator-container
     depends_on:
@@ -160,10 +162,8 @@ services:
       - spark-worker-2
     networks:
       - wm-network
-    # Optional: mount ./spark_app so you can edit spei_calculator.py live
     volumes:
       - ./spark_app:/app
-    # We'll run spark-submit referencing the script at /app/spei_calculator.py
     command: >
       /opt/bitnami/spark/bin/spark-submit
       --master spark://spark-master:7077
