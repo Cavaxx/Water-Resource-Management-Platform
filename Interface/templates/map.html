@@ -6,11 +6,19 @@
     <title>Trentino Water Facilities Map</title>
     <!-- Link to the CSS file in the static directory -->
     <link rel="stylesheet" href="{{ url_for('static', filename='Style_map.css') }}">
+    
+    <!-- Inline CSS for map container -->
+    <style>
+        #map {
+            height: 80vh; 
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav>
-        <a href="{{ url_for('home') }}">Search your city status</a>
+        <a href="{{ url_for('home') }}">Search your city</a>
         <a href="{{ url_for('services_page') }}">Our Services</a>
         <a href="{{ url_for('contacts_page') }}">Contacts</a>
     </nav>

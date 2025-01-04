@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # --------------------------------------------------------------------------
+  # FLASK & MONGO
+  # --------------------------------------------------------------------------
   flask_app:
     build:
       context: ./Interface  # The directory containing Dockerfile and app files for Flask
@@ -8,16 +11,14 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - ./Interface:/app  # Ensure only the Flask app directory is mounted to avoid conflicts
+      - ./Interface:/app   # Mount your Flask app directory
       - ./data:/app/data
     networks:
       - wm-network
     depends_on:
       - mongo
     environment:
-      - FLASK_ENV=development
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
-      
 
   mongo:
     image: mongo:latest
@@ -29,11 +30,13 @@ services:
     networks:
       - wm-network
 
-  # Service for Inserting Data into MongoDB
+  # --------------------------------------------------------------------------
+  # DATA MANAGEMENT SERVICES
+  # --------------------------------------------------------------------------
   fetch_insert_data:
     build:
-      context: ./data_management  # Set context to data_management directory
-      dockerfile: Dockerfile      # Reference Dockerfile within data_management/
+      context: ./data_management
+      dockerfile: Dockerfile
     container_name: fetch_insert_data_container
     depends_on:
       - mongo
@@ -42,13 +45,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
-    command: ["python", "fetch_insert_data_MDB.py"]  # Correct script path
+    command: ["python", "fetch_insert_data_MDB.py"]
 
-  # Service for Inserting Facilities Data into MongoDB
   fetch_insert_facilitiesdata:
     build:
-      context: ./data_management  # Set context to data_management directory
-      dockerfile: Dockerfile      # Reference Dockerfile within data_management/
+      context: ./data_management
+      dockerfile: Dockerfile
     container_name: fetch_insert_facilitiesdata_container
     depends_on:
       - mongo
@@ -57,13 +59,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
-    command: ["python", "fetch_insert_facilitesdata_MDB.py"]  # Correct script path
+    command: ["python", "fetch_insert_facilitesdata_MDB.py"]
 
-  # Service for Fetching Weather Data
   fetch_weather_data:
     build:
-      context: ./data_management  # Set context to data_management directory
-      dockerfile: Dockerfile      # Reference Dockerfile within data_management/
+      context: ./data_management
+      dockerfile: Dockerfile
     container_name: fetch_weather_data_container
     depends_on:
       - mongo
@@ -72,13 +73,12 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
-      - WEATHER_API_KEY=70e51b1fbf1d3d148ea5e8e36dbfd00e  # Hardcoded API key
-    command: ["python", "fetch_weather_data.py"]  # Correct script path
-  
-  #Service for generating and inserting synthetic data into MongooDB DB
+      - WEATHER_API_KEY=YOUR_API_KEY
+    command: ["python", "fetch_weather_data.py"]
+
   synthetic_weather_data:
     build:
-      context: ./data_management  # Directory containing Dockerfile and the script
+      context: ./data_management
       dockerfile: Dockerfile
     container_name: synthetic_weather_data_service
     depends_on:
@@ -90,63 +90,70 @@ services:
       - DB_NAME=weather_db
       - COLLECTION_NAME=synthetic_weather_data
     command: ["python", "synthetic_weather_data.py"]
-  
-  # Spark Master
+
+  # --------------------------------------------------------------------------
+  # SPARK CLUSTER (MASTER + WORKERS)
+  # --------------------------------------------------------------------------
   spark-master:
-    image: bitnami/spark:latest
-    container_name: spark-master-container
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIMaster
+      
+    container_name: spark-master
     networks:
       - wm-network
     environment:
-      - SPARK_MODE=master
-      - SPARK_MASTER_HOST=spark-master
-      - SPARK_MASTER_PORT=7077
+      SPARK_MODE: master
+      SPARK_MASTER_HOST: spark-master
+      SPARK_MASTER_PORT: 7077
+      SPARK_MASTER_WEBUI_PORT: 8080
     ports:
-      - "7077:7077"   # Spark master port
-      - "8080:8080"   # Spark master web UI
-    volumes:
-      - ./spark_app:/app  # mount your code or job scripts here
+      - "9090:8080"  # Spark Master UI
+      - "7077:7077"  # Spark Master RPC
+    # If you want Master to come up after Mongo or others, you can do:
+    depends_on:
+      - mongo
 
-  # Spark Worker 1
   spark-worker-1:
-    image: bitnami/spark:latest
-    container_name: spark-worker1-container
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-1
     networks:
       - wm-network
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-    ports:
-      - "8081:8081"   # Worker web UI
-    volumes:
-      - ./spark_app:/app
 
-  # Spark Worker 2
   spark-worker-2:
-    image: bitnami/spark:latest
-    container_name: spark-worker2-container
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-2
     networks:
       - wm-network
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-    ports:
-      - "8082:8081"   # Another worker UI on a different host port
-    volumes:
-      - ./spark_app:/app
 
-  # Service for Running the SPEI Calculation
-  # Option 1: Direct spark-submit from a container:
+  # --------------------------------------------------------------------------
+  # SPEI CALCULATOR SERVICE
+  # --------------------------------------------------------------------------
   spei_calculator:
-    image: bitnami/spark:latest  # or a custom image with your code
+    # If you want to reuse the same Spark Master/Worker image with the JARs pre-baked:
+    #   e.g., "custom-spark:latest" or "bitnami/spark:3.5" but with jars
+    # Alternatively, build your own Dockerfile for it. For now let's say:
+    image: custom-spark:latest
     container_name: spei-calculator-container
     depends_on:
       - mongo
@@ -157,30 +164,17 @@ services:
       - wm-network
     volumes:
       - ./spark_app:/app
-    # We'll run spark-submit referencing the master URL and your script:
     command: >
       /opt/bitnami/spark/bin/spark-submit
       --master spark://spark-master:7077
       --driver-memory 1g
-      /.data_management/spei_calculator.py
+      --packages org.mongodb.spark:mongo-spark-connector_2.12:10.3.0
+      /app/spei_calculator.py
     environment:
       - MONGO_URI=mongodb://mongo:27017/
       - DB_NAME=water_management
       - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
       - OUTPUT_COLLECTION=SPEI_PET
-  # mqtt_broker:
-  #   build:
-  #     context: ./data_management 
-  #     dockerfile: Dockerfile
-  #   container_name: mqtt_broker_container
-  #   depends_on:
-  #     - mongo
-  #   networks:
-  #     - wm-network
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
-  #     - MONGO_URI=mongodb://mongodb_container:27017/water_management
-  #   command: ["python", "mqtt_river_fetcher.py"]
 
 volumes:
   mongo-data:

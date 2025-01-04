@@ -21,10 +21,9 @@ nav a {
 }
 
 #map {
-    height: 300px; /* Set fixed height */
-    width: 400px; /* Set fixed width */
-    border: 1px solid #ccc; /* Optional: Add a border */
-    margin: 20px auto; /* Center it on the page */
+    flex: 1;
+    width: 100%;
+    height: calc(100vh - 120px); /* Adattamento dell'altezza */
 }
 
 footer {
