@@ -98,7 +98,6 @@ services:
     build:
       context: ./spark_app
       dockerfile: dockerfiles/Dockerfile.SPEIMaster
-      
     container_name: spark-master
     networks:
       - wm-network
@@ -110,9 +109,9 @@ services:
     ports:
       - "9090:8080"  # Spark Master UI
       - "7077:7077"  # Spark Master RPC
-    # If you want Master to come up after Mongo or others, you can do:
     depends_on:
       - mongo
+    
 
   spark-worker-1:
     build:
@@ -150,9 +149,6 @@ services:
   # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
-    # If you want to reuse the same Spark Master/Worker image with the JARs pre-baked:
-    #   e.g., "custom-spark:latest" or "bitnami/spark:3.5" but with jars
-    # Alternatively, build your own Dockerfile for it. For now let's say:
     image: custom-spark:latest
     container_name: spei-calculator-container
     depends_on:
@@ -175,6 +171,29 @@ services:
       - DB_NAME=water_management
       - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
       - OUTPUT_COLLECTION=SPEI_PET
+
+  # --------------------------------------------------------------------------
+  # SPEI SCHEDULER SERVICE
+  # --------------------------------------------------------------------------
+  spei_scheduler:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEICron
+    container_name: spei-scheduler-container
+    depends_on:
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=water_management
+      - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
+      - OUTPUT_COLLECTION=SPEI_PET
+    volumes:
+      - ./spark_app/spei_calculator.py:/opt/bitnami/spark/spei_app/spei_calculator.py
 
 volumes:
   mongo-data:

@@ -11,6 +11,8 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import FloatType
 from pyspark.sql.functions import col, sum as spark_sum, avg as spark_avg
 
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger("SPEI_Calculator")
