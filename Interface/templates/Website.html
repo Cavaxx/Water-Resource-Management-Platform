@@ -4,38 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trento Water Resources</title>
-    <!-- Link to the main CSS file stored in the static directory -->
     <link rel="stylesheet" href="{{ url_for('static', filename='Style_main.css') }}">
 </head>
 <body>
     <div class="background-image"></div>
-    
-    <!-- Navigation Bar -->
+
     <nav>
         <a href="{{ url_for('map_page') }}">Map</a>
         <a href="{{ url_for('services_page') }}">Our Services</a>
         <a href="{{ url_for('contacts_page') }}">Contacts</a>
     </nav>
-    
-    <!-- Header Section -->
+
     <header>
         <h1>Water Resource Management</h1>
         <h2>A fast and easy way to monitor water bodies and drought in the province of Trento</h2>
     </header>
-    
-    <!-- Main Content -->
+
     <main>
         <h2>Check your city status:</h2>
         <div class="search-container">
-            <!-- Wrap the input in a form with action pointing to the search route -->
-            <form action="{{ url_for('search_river') }}" method="get">
-                <input type="text" name="name" placeholder="Search..." class="search-bar" required>
+            <form action="{{ url_for('get_weather') }}" method="post">
+                <input type="text" name="city" placeholder="Search your city..." class="search-bar" required>
                 <button type="submit" class="search-button">Search</button>
             </form>
         </div>
     </main>
-    
-    <!-- Footer Section -->
+
     <footer>
         <p>&copy; Water resources management platform for the 
             <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project

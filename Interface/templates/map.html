@@ -128,22 +128,29 @@
         L.marker([46.070, 11.121], {icon: DamIcon}).addTo(map);
 
         // Parse the CSV file
-        fetch("{{ url_for('static', filename='water_facilities_trentino.csv') }}")
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(dam => {
-                if (!isNaN(parseFloat(dam['latitude wgs84'])) && !isNaN(parseFloat(dam['longitude wgs84']))) {
-                    const lat = parseFloat(dam['latitude wgs84']);
-                    const lon = parseFloat(dam['longitude wgs84']);
-                    const from = dam['water body'];
+        Papa.parse('/csv_data', {
+            download: true, // Load file from the server
+            header: true,   // First row is the header
+            complete: function (results) {
+                results.data.forEach(dam => {
+                    // Check for valid coordinates
+                    if (!isNaN(parseFloat(dam['latitude wgs84'])) && !isNaN(parseFloat(dam['longitude wgs84']))) {
+                        const lat = parseFloat(dam['latitude wgs84']);
+                        const lon = parseFloat(dam['longitude wgs84']);
+                        const from = dam['water body']; // Assume it's text, not a number
+
+                        // Add marker
+                        L.marker([lat, lon], {icon: DamIcon})
+                            .addTo(map)
+                            .bindPopup(`<b>Dam collecting water from: ${from}</b><br>Latitude: ${lat}<br>Longitude: ${lon}`);
+                    }
                     
-                    L.marker([lat, lon])
-                        .addTo(map)
-                        .bindPopup(`<b>Dam collecting water from: ${from}</b><br>Latitude: ${lat}<br>Longitude: ${lon}`);
-                }
-            });
-        })
-        .catch(error => console.error("Error loading data:", error));
+                });
+            },
+            error: function (err) {
+                console.error("Error loading CSV:", err);
+            }
+        });
     </script>
 </body>
 </html>

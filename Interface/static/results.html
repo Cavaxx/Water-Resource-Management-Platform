@@ -3,33 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Analitics</title>
-    <!-- Link to the CSS file in the static directory -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='Style_weather.css') }}">
+    <title>Weather Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style_main.css') }}">
 </head>
-
 <body>
-    <!-- Navigation Bar -->
-    <nav>
-        <a href="{{ url_for('map_page') }}">Map</a>
-        <a href="{{ url_for('services_page') }}">Our Services</a>
-        <a href="{{ url_for('contacts_page') }}">Contacts</a>
-        <a href="{{ url_for('home') }}">Search Another City</a>
-    </nav>
-
-    <!-- Header Section -->
     <header>
-        <h1> [city name] climate </h1>
+        <h1>Weather Details for {{ weather.city }}</h1>
     </header>
 
     <main>
-        
+        <p>Temperature: {{ weather.temperature }}°C</p>
+        <p>Weather: {{ weather.description }}</p>
+        <p>Humidity: {{ weather.humidity }}%</p>
+        <p>Wind Speed: {{ weather.wind_speed }} m/s</p>
+        <a href="{{ url_for('home') }}">Go Back</a>
     </main>
 
     <footer>
-        <p>&copy; Water resources management platform for the 
-            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project
-        </p>
+        <p>&copy; Water Resource Management</p>
     </footer>
 </body>
-</html>    
+</html>
