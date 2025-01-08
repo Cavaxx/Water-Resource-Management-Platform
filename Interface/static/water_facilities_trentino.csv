@@ -1,0 +1,70 @@
+id_sito,indirizzo,comune,comuni_serviti,descrizione,longitude,latitude,altezza_mslm,nome,recettore
+AB,loc. Foian,022002,"['022002', '022108']",Impianto di depurazione,11.197343,46.147744,554,ALBIANO,rio Ischion
+AD,via della Croce,022003,"['022003', '022058', '022091', '022222']",Impianto di depurazione,11.104233,45.974169,,ALDENO,fiume Adige
+AL,Loc. Baitani - fraz. Sdruzzinà,022001,['022001'],Impianto di depurazione,10.986264,45.746114,140,ALA,fiume Adige
+AN,Loc. Valle,022005,"['022005', '028001']",Impianto di depurazione,10.998473,46.162987,1013,ANDALO,rio Lambin
+AR,Loc. Linfano,022006,"['022124', '022006', '022079']",Impianto di depurazione,10.879870,45.881405,70,ARCO,fiume Sarca
+AV,Loc. La Russa,022007,['022007'],Impianto di depurazione,10.946159,45.731468,134,AVIO,fiume Adige
+BA,loc. Canveta,022169,"['022155', '022169']",Impianto di depurazione,11.062274,46.370424,,BANCO,fiume Noce
+BE,"via I maggio, 1",022013,['022013'],Impianto di depurazione,11.102679,45.938177,,BESENELLO,fossa Campigrandi
+BS,Loc. Tressilla,022009,['022009'],Impianto di depurazione,11.232340,46.128110,892,BASELGA DI PINE`,rio Silla
+CA,Loc. Dofolon,022031,"['022101', '022031', '022053']",Impianto di depurazione,10.983517,46.050540,330,CALAVINO,roggia di Calavino
+CB,Loc. Ghiaie,022038,"['022038', '022048']",Impianto di depurazione,11.727366,46.152904,640,CANAL SAN BOVO,torrente Vanoi
+CH,Loc. Villetta - fr. Chizzola,022001,"['022001', '022025']",Impianto di depurazione,11.013365,45.802119,,CHIZZOLA,fiume Adige
+CL,Loc. Planeza,022062,['022062'],Impianto di depurazione,11.049993,46.350882,600,CLES,rio Ribosc
+CM,Loc. Piani,022036,"['022036', '022039']",Impianto di depurazione,11.737840,46.472744,1403,CAMPITELLO,torrente Avisio
+CN,Loc. Ischie di Dercolo,022037,"['022037', '022074', '022194', '022086', '022069', '022181', '022180', '022200']",Impianto di depurazione,11.057782,46.250134,262,CAMPODENNO,torrente Noce
+CR,Loc.Lange Bise fraz.Carbonare,022087,['022087'],Impianto di depurazione,11.223124,45.939974,1022,CARBONARE,rio del Molino
+CS,Loc. Medoina,022047,"['022050', '022047', '022070', '022041', '022211']",Impianto di depurazione,11.445222,46.280722,843,CASTELLO DI FIEMME,rio Primavalle
+CT,Loc. San Rocco,022048,['022048'],Impianto di depurazione,11.629311,46.059905,795,CASTELLO TESINO,torrente Grigno
+CV,Loc. Sottovia,022004,"['022051', '022159', '022155', '022170', '022162', '022004', '022076']",Impianto di depurazione,11.131940,46.399973,915,CAVARENO,rio Moscabio
+DI,Loc. Ischie,022075,"['022075', '022064']",Impianto di depurazione,10.880671,46.328972,,DIMARO,torrente Noce
+DP,Loc. Le Fratte fr.Pietramurata,022079,"['022079', '022031', '022101', '022053']",Impianto di depurazione,10.952425,46.012835,242,DRO PIETRAMURATA,canaletta ENEL
+DR,Loc. Quadri,022078,"['022078', '022053']",Impianto di depurazione,10.941181,45.969064,340,DRENA,rio Sallagoni
+DS,Loc. Paludi fraz. Andogno,022077,"['022077', '022166', '022182']",Impianto di depurazione,10.893974,46.069851,503,DORSINO,torrente Ambiez
+FA,Loc. La Cornella,022081,['022081'],Impianto di depurazione,11.076327,46.179611,934,FAI DELLA PAGANELLA,rio della Valle
+FL,loc. Carpeneda,022087,"['022087', '022193']",Impianto di depurazione,11.153076,45.912869,977,FOLGARIA,rio Cavallo
+FO,Loc. Coste,022088,"['022088', '022111']",Impianto di depurazione,11.130931,46.435905,870,FONDO,torrente Sass
+FV,Loc. Pizzaga,022082,"['022055', '022082', '022011']",Impianto di depurazione,11.241267,46.175362,447,FAVER,torrente Avisio
+GI,Loc. Martelac,022093,"['022143', '022042', '022112', '022093']",Impianto di depurazione,10.763319,46.151921,748,GIUSTINO,fiume Sarca
+GR,Loc. Pianello,022095,['022095'],Impianto di depurazione,11.684346,45.969467,220,GRIGNO,fiume Brenta
+IM,Loc. Masi,022097,"['022174', '022201', '022084', '022204', '022115', '022097']",Impianto di depurazione,11.787429,46.142719,598,IMER,torrente Cismon
+LR,Loc. Pozze,022102,['022102'],Impianto di depurazione,11.263942,45.933483,1098,LAVARONE,rio Malo
+LS,Loc. Formiche,022103,"['022092', '022103', '022105', '022126', '022225']",Impianto di depurazione,11.081230,46.130954,200,LAVIS,fiume Adige
+LV,Loc. Someari,022104,"['022104', '022139', '022023', '022034', '022212', '022219', '022032', '022190', '022056', '022168', '022085', '022090', '022216', '022133']",Impianto di depurazione,11.318321,46.002890,435,LEVICO,fiume Brenta
+MA,Loc. Pramagnan,022143,"['022143', '022151']",Impianto di depurazione,10.824788,46.216313,1430,MADONNA DI CAMPIGLIO,rio Colarin
+MC,Loc. Ischie,022116,"['022116', '022117', '022167', '022080', '022160']",Impianto di depurazione,11.136307,46.205138,205,MEZZOCORONA,fossa di Caldaro
+MD,Fraz. Biacesa,022119,"['022229', '022153']",Impianto di depurazione,10.814087,45.864164,355,MOLINA DI LEDRO,torrente Ponale
+ME,Loc. Praderie di Sotto,022110,"['022110', '022068', '022121', '022150']",Impianto di depurazione,10.916226,46.349697,703,MALE`,torrente Noce
+MF,Loc. Pineta Piazzol,022047,"['022041', '022047']",Impianto di depurazione,11.411383,46.268961,800,MOLINA DI FIEMME,torrente Avisio
+ML,Loc. Pozze,022120,['022120'],Impianto di depurazione,10.966158,46.139255,830,MOLVENO,lago di Molveno
+MO,Loc. Le Parti,022118,"['022176', '022118']",Impianto di depurazione,11.643898,46.360360,1133,MOENA,torrente Avisio
+MR,Loc. Alle Casotte,022123,"['022123', '022161', '022025', '022135']",Impianto di depurazione,10.995297,45.851013,162,MORI,rio Cameras
+MZ,Loc. Cei,022114,"['022114', '022131', '022137', '022136', '022064']",Impianto di depurazione,10.812564,46.316110,856,MEZZANA,torrente Noce
+PB,Loc. Caveci fraz. Cologna,022140,"['022012', '022072', '022146', '022149', '022140', '022246']",Impianto di depurazione,10.633435,45.927573,490,PIEVE DI BONO,fiume Chiese
+PC,Loc. Paludi,022142,"['022142', '022059']",Impianto di depurazione,11.615510,46.065192,808,PIEVE CINTE TESINO,rio Solcena
+PE,Loc. Passo Lavaze',022211,['022211'],Impianto di depurazione,11.488910,46.356999,1790,PASSO LAVAZE`,rio Nero
+PF,Loc. Alloch,022145,"['022145', '022217', '022113']",Impianto di depurazione,11.686063,46.422091,1288,POZZA DI FASSA,torrente Avisio
+PL,Loc. Reondi,022141,['022229'],Impianto di depurazione,10.728643,45.886170,660,PIEVE DI LEDRO,lago di Ledro
+PR,Loc. Passo Rolle,022174,['022174'],Impianto di depurazione,11.780670,46.294735,1913,PASSO ROLLE,rio Colbricon
+PT,Loc. Passo del Tonale,022213,['022213'],Impianto di depurazione,10.604832,46.260031,1799,PASSO DEL TONALE,Noce
+RA,Loc. Arena,022153,"['022153', '022006', '022191', '022083']",Impianto di depurazione,10.855157,45.887633,71,RIVA ARENA,rio Galanzana
+RG,Loc. Capitel,022151,"['022199', '022019', '022227', '022151', '022148', '022122', '022223', '022246', '022073', '022138', '022220']",Impianto di depurazione,10.787437,46.054218,480,RAGOLI,fiume Sarca
+RM,Loc. Nogarole fraz. Romagnano,022205,['022205'],Impianto di depurazione,11.109930,46.016679,185,ROMAGNANO,fossa Maestra
+RN,Via Monte Brione,022153,['022153'],Impianto di depurazione,10.858784,45.878955,67,RIVA SAN NICOLO`,lago di Garda
+RV,Loc. Navicello,022161,"['022161', '022098', '022222', '022224', '022127', '022144', '022203', '022210', '022128']",Impianto di depurazione,11.017463,45.874025,171,ROVERETO,fiume Adige
+SE,loc. Ponte dei servi,022182,"['022228', '022083']",Impianto di depurazione,10.896206,46.048395,,STENICO,fiume Sarca
+SO,Loc. Piaggioni-Gole,022177,['022177'],Impianto di depurazione,11.313751,46.216308,687,SOVER,rio Brusago
+SP,Loc. Pozza fraz. Borzago,022179,"['022029', '022018', '022184', '022179']",Impianto di depurazione,10.733171,46.093457,634,SPIAZZO,fiume Sarca
+SS,Loc. S. Massenza,022215,"['022132', '022215']",Impianto di depurazione,10.986264,46.069431,245,SANTA MASSENZA,lago di S.Massenza
+ST,Zona Industriale,022183,"['022183', '022021', '022066', '022045', '022057', '022012', '022028', '022149']",Impianto di depurazione,10.558226,45.839862,380,STORO,rio Lora
+SZ,Loc. S. Martino,022174,"['022174', '022201']",Impianto di depurazione,11.806762,46.245861,1384,S.MARTINO DI CASTROZZA,torrente Cismon
+TA,Loc. Mulini,022186,"['022186', '022067', '022175', '022173', '022206', '022125', '022187', '022207', '022214']",Impianto di depurazione,11.061022,46.316910,370,TAIO,canale acque bianche - torrente Noce
+TE,Loc. Val,022196,"['022147', '022226', '022134', '022196', '022118']",Impianto di depurazione,11.511440,46.284949,885,TESERO,torrente Avisio
+TG,Loc. Peltreri,022193,['022193'],Impianto di depurazione,11.147153,45.877924,740,TERRAGNOLO,torrente Leno
+TM,Strada per Bragone,022229,['022229'],Impianto di depurazione,10.674433,45.851204,,TREMALZO,rio Nero
+TN,"Lung'Adige Braille, 24",022205,"['022205', '022061', '022089', '022139', '022009', '022192']",Impianto di depurazione,11.109661,46.083676,191,TRENTO NORD,fiume Adige
+TS,"Via Ragazzi del 99, 39",022205,['022205'],Impianto di depurazione,11.124081,46.037355,185,TRENTO SUD,fiume Adige
+VA,Loc. Campagna,022240,"['022221', '022022', '022049', '022165', '022178', '022188', '022043', '022099', '022171', '022185', '022189', '022156', '022129']",Impianto di depurazione,11.512277,46.049110,341,VILLA AGNEDO,roggia di Scurelle
+VE,Loc. Malga Laghetto,022102,"['022034', '022102', '022104', '022109']",Impianto di depurazione,11.300908,45.950583,1130,MALGA LAGHETTO,rio Torto
+VL,Loc. Molina,022210,['022210'],Impianto di depurazione,11.099603,45.797048,512,VALLARSA,torrente Leno
