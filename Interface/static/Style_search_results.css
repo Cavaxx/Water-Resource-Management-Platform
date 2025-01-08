@@ -30,6 +30,14 @@ main h2 {
     margin-bottom: 2rem;
 }
 
+/* NEW: to display two charts side by side */
+.chart-container {
+    display: flex;
+    gap: 2rem;          /* spacing between the child blocks */
+    align-items: flex-start; 
+    margin-bottom: 2rem;
+}
+
 ul {
     list-style-type: none;
     padding: 0;

@@ -1,4 +1,3 @@
-from os import sendfile
 from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
 import pandas as pd
@@ -8,28 +7,24 @@ app = Flask(__name__)
 # MongoDB setup
 mongo_client = MongoClient("mongodb://mongo:27017/")
 db = mongo_client["water_management"]
-rivers_collection = db["sensor_data"]
 
-# Load CSV data
-csv_path = "../data/water_facilities_trentino.csv"
+# Collections: 
+#   - 'SPEI_PET' has e.g. { city: "Trento", month: 1, pet: ..., spei: ... }
+#   - 'water_facilities' has e.g. { nome: "TRENTO", ... }
+spei_pet_collection = db["SPEI_PET"]
+facilities_collection = db["water_facilities"]
 
-@app.route('/get-csv-data')
-def get_csv_data():
-    # Read the CSV file
-    data = []
-    try:
-        with open(csv_path, mode='r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                data.append(row)
-    except FileNotFoundError:
-        return jsonify({"error": "CSV file not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-    return jsonify(data)
+# (Optional) If you still need a CSV for reference
+csv_path = "/app/data/water_facilities_trentino.csv"
+try:
+    facilities_df = pd.read_csv(csv_path)
+    facilities_df.set_index("id_sito", inplace=True)
+except Exception as e:
+    print(f"Error loading CSV data: {e}")
 
+# -----------------------------------------------------------
 # Routes to render templates
+# -----------------------------------------------------------
 @app.route('/')
 def home():
     return render_template('Website.html')
@@ -44,19 +39,104 @@ def contacts_page():
 
 @app.route('/services')
 def services_page():
+    # Render a template with your services info
     return render_template('services.html')
 
-# Search route
+
 @app.route('/search', methods=['GET'])
-def search_river():
-    river_name = request.args.get('name')
-    if river_name:
-        river_query = {"water_body": river_name}
-        river_results = list(rivers_collection.find(river_query, {"_id": 0, "water_body": 1, "value": 1, "latitude": 1, "longitude": 1}))
-        facility_results = facilities_df[facilities_df['recettore'] == river_name].to_dict(orient="records")
-        return jsonify({"river_data": river_results, "facility_data": facility_results})
-    else:
-        return jsonify({"error": "No river name provided"}), 400
+def search_city():
+    city_name = request.args.get("city")  # e.g. /search?city=Trento
+    if not city_name:
+        return jsonify({"error": "No city name provided"}), 400
+
+    # -- Query collections --
+    spei_query = {"city": city_name}
+    spei_pet_data = list(spei_pet_collection.find(spei_query, {"_id": 0}))
+
+    fac_query = {"nome": city_name.upper()}
+    facilities_data = list(facilities_collection.find(fac_query, {"_id": 0}))
+
+    # ---------------------------------
+    # SETUP FOR MATPLOTLIB
+    # ---------------------------------
+    import matplotlib
+    matplotlib.use('Agg')  # for headless (server) environments
+    import matplotlib.pyplot as plt
+    from io import BytesIO
+    import base64
+
+    # Only take the first 12 records for charting (if that many exist)
+    subset = spei_pet_data[:12]
+
+    # Extract months, spei, and drought
+    # If your docs store:  "month": int, "spei": float, "drought": float
+    months = [rec.get("month") for rec in subset]
+    spei_values = [rec.get("spei") for rec in subset]
+    drought_values = [rec.get("drought") for rec in subset]
+
+    # Optionally define a dictionary for month-name mapping
+    month_map = {
+        1: "January", 2: "February", 3: "March", 4: "April",
+        5: "May", 6: "June", 7: "July", 8: "August",
+        9: "September", 10: "October", 11: "November", 12: "December"
+    }
+    month_labels = [month_map.get(m, f"Month {m}") for m in months]
+
+    # ---------------------------------
+    # (A) FIRST FIGURE: SPEI
+    # ---------------------------------
+    fig1, ax1 = plt.subplots(figsize=(6, 4))
+    ax1.plot(months, spei_values, marker='o', color='blue', label='SPEI')
+    ax1.set_xlabel("Month")
+    ax1.set_ylabel("SPEI Value")
+    ax1.set_title(f"SPEI for {city_name}")
+    ax1.set_xticks(months)
+    ax1.set_xticklabels(month_labels, rotation=45)
+    ax1.legend()
+    fig1.tight_layout()
+
+    # Convert to PNG bytes, then base64-encode
+    png1 = BytesIO()
+    fig1.savefig(png1, format="png")
+    png1.seek(0)
+    graph_data_spei = base64.b64encode(png1.getvalue()).decode('ascii')
+
+    # ---------------------------------
+    # (B) SECOND FIGURE: Drought
+    # ---------------------------------
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
+    ax2.plot(months, drought_values, marker='o', color='red', label='Drought')
+    ax2.set_xlabel("Month")
+    ax2.set_ylabel("Drought Value")
+    ax2.set_title(f"Drought for {city_name}")
+    ax2.set_xticks(months)
+    ax2.set_xticklabels(month_labels, rotation=45)
+    ax2.legend()
+    fig2.tight_layout()
+
+    # Convert to PNG bytes, then base64-encode
+    png2 = BytesIO()
+    fig2.savefig(png2, format="png")
+    png2.seek(0)
+    graph_data_drought = base64.b64encode(png2.getvalue()).decode('ascii')
+
+    # Clean up figures from memory
+    plt.close(fig1)
+    plt.close(fig2)
+
+    # ---------------------------------
+    # Render template, passing both images
+    # ---------------------------------
+    return render_template(
+        "search_results.html",
+        query=city_name,
+        spei_pet_data=spei_pet_data,
+        facilities_data=facilities_data,
+        graph_data_spei=graph_data_spei,
+        graph_data_drought=graph_data_drought
+    )
+
 
 if __name__ == '__main__':
+    # Debug mode for local development; 0.0.0.0 to listen on all interfaces in Docker
     app.run(debug=True, host='0.0.0.0', port=5001)
