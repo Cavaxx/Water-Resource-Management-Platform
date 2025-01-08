@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Analitics</title>
+    <!-- Link to the CSS file in the static directory -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style_weather.css') }}">
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="{{ url_for('map_page') }}">Map</a>
+        <a href="{{ url_for('services_page') }}">Our Services</a>
+        <a href="{{ url_for('contacts_page') }}">Contacts</a>
+        <a href="{{ url_for('home') }}">Search Another City</a>
+    </nav>
+
+    <!-- Header Section -->
+    <header>
+        <h1> [city name] climate </h1>
+    </header>
+
+    <main>
+        
+    </main>
+
+    <footer>
+        <p>&copy; Water resources management platform for the 
+            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project
+        </p>
+    </footer>
+</body>
+</html>    

@@ -1,21 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trentino Water Facilities Map</title>
-    <!-- Link to the CSS file in the static directory -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='Style_map.css') }}">
-    
-    <!-- Inline CSS for map container -->
+    <title>Interactive Map Page</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+
+    <!-- Page CSS -->
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            text-align: right;
+            }
+        nav a {
+            color: white;
+            margin: 0 1rem;
+            text-decoration: none;
+            }
+
+
+        /* Map Container */
         #map {
-            height: 80vh; 
+            height: 80vh;
+            width: 50%;
+            float: left;
+        }
+
+        /* Content Section */
+        .content {
+            width: 50%;
+            float: left;
+            padding: 20px;
+        }
+
+        /* Footer */
+        footer {
+            color:white;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            text-align: center;
+            position: fixed;
+            bottom: 0%;
             width: 100%;
+        }
+
+        footer p {
+            margin: 0;
+            color: white;
+        }
+
+        
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 768px) {
+
+            #map,
+            .content {
+                width: 50%;
+                height: 50vh;
+                float: none;
+            }
         }
     </style>
 </head>
+
 <body>
+
     <!-- Navigation Bar -->
     <nav>
         <a href="{{ url_for('home') }}">Search your city</a>
@@ -23,20 +88,62 @@
         <a href="{{ url_for('contacts_page') }}">Contacts</a>
     </nav>
 
-    <!-- Map Container -->
+    <!-- Map and Content -->
     <div id="map"></div>
+    <div class="content">
+        <p>This interactive maps displays the dams and their current water level.</p>
+    </div>
 
-    <!-- Footer Section -->
+    <!-- Footer -->
     <footer>
-        <p>&copy; Water resources management platform for the 
-            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project
+        <p>&copy; Water resources management platform for the
+            <a
+                href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a>
+            project
         </p>
     </footer>
 
-    <!-- Leaflet.js for map functionalities -->
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- Link to the JavaScript file in the static directory -->
-    <script src="{{ url_for('static', filename='map_script.js') }}"></script>
+    <!-- Custom JS to initialize the map -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([46.070, 11.121], 13); // Initialize in Trento
+
+        // Add tile layer (Map tiles)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Try adding other icons
+        var DamIcon = L.icon({
+            iconUrl: "{{ url_for('static', filename='Images/Dams_Icon.png') }}",
+            iconSize:     [30, 50],
+            iconAnchor:   [22, 94],
+            popupAnchor:  [-3, -76]
+        });
+        L.marker([46.070, 11.121], {icon: DamIcon}).addTo(map);
+
+        // Parse the CSV file
+        fetch("{{ url_for('static', filename='water_facilities_trentino.csv') }}")
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(dam => {
+                if (!isNaN(parseFloat(dam['latitude wgs84'])) && !isNaN(parseFloat(dam['longitude wgs84']))) {
+                    const lat = parseFloat(dam['latitude wgs84']);
+                    const lon = parseFloat(dam['longitude wgs84']);
+                    const from = dam['water body'];
+                    
+                    L.marker([lat, lon])
+                        .addTo(map)
+                        .bindPopup(`<b>Dam collecting water from: ${from}</b><br>Latitude: ${lat}<br>Longitude: ${lon}`);
+                }
+            });
+        })
+        .catch(error => console.error("Error loading data:", error));
+    </script>
 </body>
 </html>

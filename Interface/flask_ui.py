@@ -1,3 +1,4 @@
+from os import sendfile
 from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
 import pandas as pd
@@ -10,12 +11,23 @@ db = mongo_client["water_management"]
 rivers_collection = db["sensor_data"]
 
 # Load CSV data
-csv_path = "/app/data/water_facilities_trentino.csv"
-try:
-    facilities_df = pd.read_csv(csv_path)
-    facilities_df.set_index("id_sito", inplace=True)
-except Exception as e:
-    print(f"Error loading CSV data: {e}")
+csv_path = "../data/water_facilities_trentino.csv"
+
+@app.route('/get-csv-data')
+def get_csv_data():
+    # Read the CSV file
+    data = []
+    try:
+        with open(csv_path, mode='r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                data.append(row)
+    except FileNotFoundError:
+        return jsonify({"error": "CSV file not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    return jsonify(data)
 
 # Routes to render templates
 @app.route('/')
