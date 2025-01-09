@@ -22,6 +22,15 @@ try:
 except Exception as e:
     print(f"Error loading CSV data: {e}")
 
+# Save City name list for search bar
+def get_names_from_csv(file_path):
+    df = pd.read_csv(file_path)
+    return df['Denominazione in italiano'].tolist()
+
+# Load city names from CSV file
+city_csv_path = "../app/data/cod_com.csv"
+city_list = get_names_from_csv(city_csv_path)
+
 # -----------------------------------------------------------
 # Routes to render templates
 # -----------------------------------------------------------
@@ -42,12 +51,18 @@ def services_page():
     # Render a template with your services info
     return render_template('services.html')
 
+#---------------------------------
+# Search Bar
+#---------------------------------
 
 @app.route('/search', methods=['GET'])
 def search_city():
     city_name = request.args.get("city")  # e.g. /search?city=Trento
     if not city_name:
         return jsonify({"error": "No city name provided"}), 400
+    
+    if city_name not in city_list:
+        return jsonify({'error': 'Invalid city name. Please enter a valid city.'}), 400
 
     # -- Query collections --
     spei_query = {"city": city_name}
