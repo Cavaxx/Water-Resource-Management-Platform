@@ -4,21 +4,6 @@ import pandas as pd
 
 app = Flask(__name__)
 
-<<<<<<< HEAD
-# Load CSV data
-def get_names_from_csv(file_path):
-    df = pd.read_csv(file_path)
-    return df['Denominazione in italiano'].tolist()
-
-# Load city names from CSV file
-city_csv_path = "../app/data/cod_com.csv"
-city_names = get_names_from_csv(city_csv_path)
-
-# Replace with your Weather API key
-API_KEY = 'your_api_key'
-BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
-
-=======
 # MongoDB setup
 mongo_client = MongoClient("mongodb://mongo:27017/")
 db = mongo_client["water_management"]
@@ -49,7 +34,6 @@ city_list = get_names_from_csv(city_csv_path)
 # -----------------------------------------------------------
 # Routes to render templates
 # -----------------------------------------------------------
->>>>>>> Develop
 @app.route('/')
 def home():
     return render_template('Website.html'), 200, {'Content-Type': 'text/html'}
