@@ -19,4 +19,75 @@ Project Structure
 - Matplotlib & Pandas: Used for data analysis and visualization within the Flask app​
 - Python Scheduling & Requests Libraries: Automates regular data fetching and processing tasks​
 
+## Project Structure
+The repository is organized as follows:
+.
+├── Interface
+│   ├── Dockerfile
+│   ├── flask_ui.py
+│   ├── requirements.txt
+│   ├── TRENTO_PROVINCIA.json
+│   ├── static
+│   │   └── ..
+│   ├── templates
+│   │   └── ..
+│   ├── data
+│   │   └── cod_com.csv
+│   └──  ..
+├── data_management
+│   ├── Dockerfile
+│   ├── csv_parquet_converter.ipynb
+│   ├── fetch_insert_data_MDB.py
+│   ├── fetch_insert_facilitesdata_MDB.py
+│   ├── fetch_weather_data.py
+│   ├── mqtt_river_fetcher.ipynb
+│   ├── mqtt_river_fetcher.py
+│   ├── requirements.txt
+│   ├── synthetic_weather_data.json
+│   ├── synthetic_weather_data.py
+│   └──  ..
+├── data
+│   ├── Dockerfile
+│   ├── spark_streaming.py
+│   ├── requirements.txt
+│   └── fwi_calculator.py
+├── data_processor
+│   ├── Dockerfile
+│   ├── ui_flask.py
+│   ├── requirements.txt
+│   ├── COMUNI.json
+│   ├── templates
+│   │   └── ...
+│   ├── static
+│       └── ...
+├── spark_app
+│   └── ...
+├── docker-compose.yml
+├── start.sh
+└── README.md
 
+## Setup and Configuration
+### Configuration File
+
+[The configuration file config.yaml includes necessary parameters for API keys from OpenWeather. Ensure it is correctly set up before running the application.
+
+If you are the professors of the course BDT, check the email with the deliver of the project, the API for you is there!
+Docker Setup
+
+The project uses Docker Compose to manage and run services. It includes the Docker Compose file docker-compose.yml which sets up MongoDB, Mosquitto (MQTT broker), and other services.]
+
+## How to Run
+After cloning this repository on your machine, install Docker and follows these steps:
+
+### Clean the environment:
+
+docker-compose down --remove-orphans    
+
+### Start Docker:
+
+docker-compose up --build
+
+### Access the user interface at http://127.0.0.1:5000.
+
+## Components Description
+[...]
