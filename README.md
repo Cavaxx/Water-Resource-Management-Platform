@@ -68,15 +68,16 @@ Project Structure
 
 ## Setup and Configuration
 ### API key setup
-
 In order to be able to access realtime weather data it is important to have an API key. You can get one from this website https://openweathermap.org/ , if you are the Professor of BDT you can use the one we sent by email with the project paper.
 The key should be saved in your environment as `YOUR_API_KEY`, you can do it like this:
+ ``` 
+export YOUR_API_KEY="your_actual_api_key"  # Linux/MacOS
+set YOUR_API_KEY="your_actual_api_key"     # Windows
+ ``` 
 Ensure it is correctly set up before running the application.
 
-If you are the professors of the course BDT, check the email with the deliver of the project, the API for you is there!
-Docker Setup
-
-The project uses Docker Compose to manage and run services. It includes the Docker Compose file docker-compose.yml which sets up MongoDB, Mosquitto (MQTT broker), and other services.]
+### Docker Setup
+The project uses Docker Compose to manage and run services. You should install it from the terminal if you are using Mac or linux or install the program from the official website if you are working from Windows.
 
 ## How to Run
 After cloning this repository on your machine, install Docker and follows these steps:
