@@ -2,11 +2,11 @@
 
 This project aims to design a comprehensive platform for managing water resources and the facilities processing water bodies in the Trentino region. The system collects data from various sources, providing users with real-time weather updates for their city, the monthly drought index, and the annual SPEI (Standardized Precipitation-Evapotranspiration Index). It also features a map showcasing water facilities and dams within the region, along with their real-time water levels.
 Project Structure
-- data/: Data storage
-- data fetcher/: Scripts for fetching real-time data
-- scripts/: Data processing scripts
-- Spark_app/: Apache Spark models for computing drought indexes
-- Interface/: User Interface and Flask server
+- data: Data storage
+- data fetcher: Scripts for fetching real-time data
+- scripts: Data processing scripts
+- Spark_app: Apache Spark models for computing drought indexes
+- Interface: User Interface and Flask server
 
 ## Technologies Used
 
@@ -18,9 +18,8 @@ Project Structure
 - Climate-Indices Library: Computes drought indices using methods like Thornthwaite PET and SPEI calculations​
 - Matplotlib & Pandas: Used for data analysis and visualization within the Flask app​
 - Python Scheduling & Requests Libraries: Automates regular data fetching and processing tasks​
-
-## Project Structure
-The repository is organized as follows:
+ 
+ ```
 .
 ├── Interface
 │   ├── Dockerfile
@@ -33,31 +32,6 @@ The repository is organized as follows:
 │   │   └── ..
 │   ├── data
 │   │   └── cod_com.csv
-│   └──  ..
-├── data_management
-│   ├── Dockerfile
-│   ├── csv_parquet_converter.ipynb
-│   ├── fetch_insert_data_MDB.py
-│   ├── fetch_insert_facilitesdata_MDB.py
-│   ├── fetch_weather_data.py
-│   ├── mqtt_river_fetcher.ipynb
-│   ├── mqtt_river_fetcher.py
-│   ├── requirements.txt
-│   ├── synthetic_weather_data.json
-│   ├── synthetic_weather_data.py
-│   └──  ..
-├── data
-│   ├── rivers
-│   ├── └──  ..
-│   ├── ANALISI_STUDENTI_2024.xlsx
-│   ├── ravio_torrente_aviana_altezze_idrometriche_20050128000000_20221231234500.csv
-│   ├── concessioni.xls
-│   ├── index_of_sensors.csv
-│   ├── opere.xls
-│   ├── quality_body_water.ods
-│   ├── usi.xls
-│   ├── water_facilities_trentino.csv
-│   ├── weather_data.json
 │   └── ..
 ├── data_management
 │   ├── Dockerfile
@@ -71,11 +45,26 @@ The repository is organized as follows:
 │   ├── synthetic_weather_data.json
 │   ├── synthetic_weather_data.py
 │   └── water_management.log
+├── data
+│   ├── rivers
+│   │   └── ..
+│   ├── ANALISI_STUDENTI_2024.xlsx
+│   ├── ravio_torrente_aviana_altezze_idrometriche_20050128000000_20221231234500.csv
+│   ├── concessioni.xls
+│   ├── index_of_sensors.csv
+│   ├── opere.xls
+│   ├── quality_body_water.ods
+│   ├── usi.xls
+│   ├── water_facilities_trentino.csv
+│   ├── weather_data.json
+│   └── ..
 ├── spark_app
 │   └── ...
 ├── docker-compose.yml
 ├── start.sh
 └── README.md
+ ```
+
 
 ## Setup and Configuration
 ### Configuration File
@@ -92,11 +81,15 @@ After cloning this repository on your machine, install Docker and follows these 
 
 ### Clean the environment:
 
-docker-compose down --remove-orphans    
+ ```
+docker-compose down --remove-orphans
+ ```    
 
 ### Start Docker:
 
+ ```
 docker-compose up --build
+ ```
 
 ### Access the user interface at http://127.0.0.1:5000.
 
