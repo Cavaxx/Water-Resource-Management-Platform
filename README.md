@@ -67,9 +67,11 @@ Project Structure
 
 
 ## Setup and Configuration
-### Configuration File
+### API key setup
 
-[The configuration file config.yaml includes necessary parameters for API keys from OpenWeather. Ensure it is correctly set up before running the application.
+In order to be able to access realtime weather data it is important to have an API key. You can get one from this website https://openweathermap.org/ , if you are the Professor of BDT you can use the one we sent by email with the project paper.
+The key should be saved in your environment as `YOUR_API_KEY`, you can do it like this:
+Ensure it is correctly set up before running the application.
 
 If you are the professors of the course BDT, check the email with the deliver of the project, the API for you is there!
 Docker Setup
