@@ -33,6 +33,7 @@ services:
 
   # --------------------------------------------------------------------------
   # DATA MANAGEMENT SERVICES
+  # (Services unchanged)
   # --------------------------------------------------------------------------
   fetch_insert_data:
     build:
@@ -94,6 +95,7 @@ services:
 
   # --------------------------------------------------------------------------
   # SPARK CLUSTER (MASTER + WORKERS)
+  # (Services unchanged)
   # --------------------------------------------------------------------------
   spark-master:
     build:
@@ -112,7 +114,6 @@ services:
       - "7077:7077"  # Spark Master RPC
     depends_on:
       - mongo
-    
 
   spark-worker-1:
     build:
@@ -147,10 +148,12 @@ services:
       - spark-master
 
   # --------------------------------------------------------------------------
-  # SPEI CALCULATOR SERVICE
+  # SPEI CALCULATOR SERVICE using a public Spark image
   # --------------------------------------------------------------------------
   spei_calculator:
-    image: custom-spark:latest
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEICalculator
     container_name: spei-calculator-container
     depends_on:
       - mongo
@@ -175,6 +178,7 @@ services:
 
   # --------------------------------------------------------------------------
   # SPEI SCHEDULER SERVICE
+  # (Service unchanged)
   # --------------------------------------------------------------------------
   spei_scheduler:
     build:
@@ -201,4 +205,4 @@ volumes:
 
 networks:
   wm-network:
-    driver: bridge
+    driver: bridge 

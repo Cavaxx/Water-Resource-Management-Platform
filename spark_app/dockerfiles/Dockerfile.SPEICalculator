@@ -1,0 +1,14 @@
+# Use the Bitnami Spark 3.5 image as the base
+FROM bitnami/spark:3.5
+
+# Switch to root to install additional packages
+USER root
+
+# Copy your requirements.txt to the container
+COPY requirements.txt /app/requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Switch back to the default user (often '1001' for Bitnami images)
+USER 1001
