@@ -1,0 +1,8 @@
+# spark_app/requirements.txt
+pyspark==3.3.2
+climate-indices
+numpy
+scipy
+xarray
+netCDF4
+# (no pinned versions)

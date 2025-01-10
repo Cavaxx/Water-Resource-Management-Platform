@@ -1,0 +1,9 @@
+# Example: run the SPEI calculation every night at 3:30 AM
+# The "root" user is typically who runs cron inside the container
+# Adjust the schedule as needed (minute, hour, day, etc.)
+30 3 * * * root /opt/bitnami/spark/bin/spark-submit \
+  --master spark://spark-master:7077 \
+  --packages org.mongodb.spark:mongo-spark-connector_2.12:10.3.0 \
+  --driver-memory 1g \
+  /opt/bitnami/spark/spei_app/spei_calculator.py \
+  >> /var/log/cron.log 2>&1

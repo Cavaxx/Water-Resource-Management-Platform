@@ -1,0 +1,23 @@
+# Start from the same base image as your other Spark images
+FROM bitnami/spark:3.5
+
+# Switch to root to install packages
+USER root
+
+# Install cron
+RUN apt-get update && apt-get install -y cron
+
+# Copy in your spei_calculator.py (or reference a volume later)
+COPY spei_calculator.py /opt/bitnami/spark/spei_app/spei_calculator.py
+
+# Copy in your crontab file
+COPY crontab.txt /etc/cron.d/spei-crontab
+
+# Make the crontab file readable by cron
+RUN chmod 0644 /etc/cron.d/spei-crontab
+
+# Let cron log to stdout (optional) 
+#  - One trick is to redirect /var/log/cron.log to Docker logs
+#    by tailing it in the foreground, but simplest is "cron -f"
+#    which keeps cron in the foreground.
+CMD ["cron", "-f"]
