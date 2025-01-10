@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trento Water Resources</title>
+        <!-- Link to the CSS file in the static directory -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='Style_services.css') }}">
+    </head>
+    <body>
+        <!-- Navigation Bar -->
+        <nav>
+            <a href="{{ url_for('map_page') }}">Map</a>
+            <a href="{{ url_for('contacts_page') }}">Contacts</a>
+        </nav>
+
+        <!-- Header Section -->
+        <header>
+            <h1>Our Services</h1>
+        </header>
+
+        <!-- Main Content Section -->
+        <main>
+            <div class="button-container">
+                <a href="{{ url_for('services_page', service='dams') }}" class="service-button">
+                    <div class="service-content">
+                        <img src="{{ url_for('static', filename='Images/diga.jpg') }}" alt="Dams Service">
+                        <h2>Dams</h2>
+                    </div>
+                </a>
+                <a href="{{ url_for('services_page', service='rivers') }}" class="service-button">
+                    <div class="service-content">
+                        <img src="{{ url_for('static', filename='Images/lago.jpg') }}" alt="Rivers Service">
+                        <h2>Rivers</h2>
+                    </div>
+                </a>
+                <a href="{{ url_for('home') }}" class="service-button">
+                    <div class="service-content">
+                        <img src="{{ url_for('static', filename='Images/città.jpg') }}" alt="Droughtness Service">
+                        <h2>Droughtness</h2>
+                    </div>
+                </a>
+            </div>
+        </main>
+
+        <!-- Footer Section -->
+        <footer>
+            <p>&copy; Water resources management platform for the 
+                <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project
+            </p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results for {{ query }}</title>
+</head>
+<body>
+    <h1>Search Results for {{ query }}</h1>
+
+    {% if graph_data_drought %}
+        <h2>Drought Index</h2>
+        <img src="data:image/png;base64,{{ graph_data_drought }}" alt="Drought Chart">
+    {% else %}
+        <p>No Drought data available for {{ query }}.</p>
+    {% endif %}
+
+    <h2>Water Facilities</h2>
+    {% if facilities_data %}
+        <ul>
+            {% for facility in facilities_data %}
+                <li>
+                    <strong>Name:</strong> {{ facility.nome }}<br>
+                    <strong>Address:</strong> {{ facility.indirizzo }}<br>
+                    <strong>Description:</strong> {{ facility.descrizione }}<br>
+                    <strong>Coordinates:</strong> ({{ facility.latitude }}, {{ facility.longitude }})<br>
+                    <strong>Altitude:</strong> {{ facility.altezza_mslm }} m MSLM<br>
+                    <strong>Receiver:</strong> {{ facility.recettore }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No water facilities found for {{ query }}.</p>
+    {% endif %}
+</body>
+</html>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            &copy; Water resources management platform for the 
+            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">
+              2024BDT
+            </a> 
+            project
+        </p>
+    </footer>
+</body>
+</html>
