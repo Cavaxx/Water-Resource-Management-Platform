@@ -47,19 +47,30 @@ The repository is organized as follows:
 │   ├── synthetic_weather_data.py
 │   └──  ..
 ├── data
+│   ├── rivers
+│   ├── └──  ..
+│   ├── ANALISI_STUDENTI_2024.xlsx
+│   ├── ravio_torrente_aviana_altezze_idrometriche_20050128000000_20221231234500.csv
+│   ├── concessioni.xls
+│   ├── index_of_sensors.csv
+│   ├── opere.xls
+│   ├── quality_body_water.ods
+│   ├── usi.xls
+│   ├── water_facilities_trentino.csv
+│   ├── weather_data.json
+│   └── ..
+├── data_management
 │   ├── Dockerfile
-│   ├── spark_streaming.py
+│   ├── csv_parquet_converter.ipynb
+│   ├── fetch_insert_data_MDB.py
+│   ├── fetch_insert_facilitesdata_MDB.py
+│   ├── fetch_weather_data.py
+│   ├── mqtt_river_fetcher.ipynb
+│   ├── mqtt_river_fetcher.py
 │   ├── requirements.txt
-│   └── fwi_calculator.py
-├── data_processor
-│   ├── Dockerfile
-│   ├── ui_flask.py
-│   ├── requirements.txt
-│   ├── COMUNI.json
-│   ├── templates
-│   │   └── ...
-│   ├── static
-│       └── ...
+│   ├── synthetic_weather_data.json
+│   ├── synthetic_weather_data.py
+│   └── water_management.log
 ├── spark_app
 │   └── ...
 ├── docker-compose.yml
