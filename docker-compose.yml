@@ -1,0 +1,210 @@
+version: '3.8'
+services:
+<<<<<<< HEAD
+=======
+  # --------------------------------------------------------------------------
+  # FLASK & MONGO
+  # --------------------------------------------------------------------------
+  flask_app:
+    build:
+      context: ./Interface  # The directory containing Dockerfile and app files for Flask
+    container_name: flask_app_container
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./Interface:/app   # Mount your Flask app directory
+      - ./data:/app/data
+    networks:
+      - wm-network
+    depends_on:
+      - mongo
+    environment:
+      - FLASK_ENV=development
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+
+>>>>>>> Develop
+  mongo:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - wm-network
+
+  # --------------------------------------------------------------------------
+  # DATA MANAGEMENT SERVICES
+  # (Services unchanged)
+  # --------------------------------------------------------------------------
+  fetch_insert_data:
+    build:
+      context: ./data_management
+      dockerfile: Dockerfile
+    container_name: fetch_insert_data_container
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+    command: ["python", "fetch_insert_data_MDB.py"]
+
+  fetch_insert_facilitiesdata:
+    build:
+      context: ./data_management
+      dockerfile: Dockerfile
+    container_name: fetch_insert_facilitiesdata_container
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+    command: ["python", "fetch_insert_facilitesdata_MDB.py"]
+
+  fetch_weather_data:
+    build:
+      context: ./data_management
+      dockerfile: Dockerfile
+    container_name: fetch_weather_data_container
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - WEATHER_API_KEY=YOUR_API_KEY
+    command: ["python", "fetch_weather_data.py"]
+
+  synthetic_weather_data:
+    build:
+      context: ./data_management
+      dockerfile: Dockerfile
+    container_name: synthetic_weather_data_service
+    depends_on:
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=weather_db
+      - COLLECTION_NAME=synthetic_weather_data
+    command: ["python", "synthetic_weather_data.py"]
+
+  # --------------------------------------------------------------------------
+  # SPARK CLUSTER (MASTER + WORKERS)
+  # (Services unchanged)
+  # --------------------------------------------------------------------------
+  spark-master:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIMaster
+    container_name: spark-master
+    networks:
+      - wm-network
+    environment:
+      SPARK_MODE: master
+      SPARK_MASTER_HOST: spark-master
+      SPARK_MASTER_PORT: 7077
+      SPARK_MASTER_WEBUI_PORT: 8080
+    ports:
+      - "9090:8080"  # Spark Master UI
+      - "7077:7077"  # Spark Master RPC
+    depends_on:
+      - mongo
+
+  spark-worker-1:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-1
+    networks:
+      - wm-network
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
+    depends_on:
+      - spark-master
+
+  spark-worker-2:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-2
+    networks:
+      - wm-network
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
+    depends_on:
+      - spark-master
+
+  # --------------------------------------------------------------------------
+  # SPEI CALCULATOR SERVICE using a public Spark image
+  # --------------------------------------------------------------------------
+  spei_calculator:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEICalculator
+    container_name: spei-calculator-container
+    depends_on:
+      - mongo
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
+    networks:
+      - wm-network
+    volumes:
+      - ./spark_app:/app
+    command: >
+      /opt/bitnami/spark/bin/spark-submit
+      --master spark://spark-master:7077
+      --driver-memory 1g
+      --packages org.mongodb.spark:mongo-spark-connector_2.12:10.3.0
+      /app/spei_calculator.py
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=water_management
+      - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
+      - OUTPUT_COLLECTION=SPEI_PET
+
+  # --------------------------------------------------------------------------
+  # SPEI SCHEDULER SERVICE
+  # (Service unchanged)
+  # --------------------------------------------------------------------------
+  spei_scheduler:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEICron
+    container_name: spei-scheduler-container
+    depends_on:
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
+      - mongo
+    networks:
+      - wm-network
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=water_management
+      - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
+      - OUTPUT_COLLECTION=SPEI_PET
+    volumes:
+      - ./spark_app/spei_calculator.py:/opt/bitnami/spark/spei_app/spei_calculator.py
+
+volumes:
+  mongo-data:
+
+networks:
+  wm-network:
+    driver: bridge 
