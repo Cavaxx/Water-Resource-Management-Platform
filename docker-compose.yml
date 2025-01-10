@@ -96,9 +96,7 @@ services:
   # SPARK CLUSTER (MASTER + WORKERS)
   # --------------------------------------------------------------------------
   spark-master:
-    build:
-      context: ./spark_app
-      dockerfile: dockerfiles/Dockerfile.SPEIMaster
+    image: bitnami/spark:3.3.2
     container_name: spark-master
     networks:
       - wm-network
@@ -112,12 +110,15 @@ services:
       - "7077:7077"  # Spark Master RPC
     depends_on:
       - mongo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     
 
   spark-worker-1:
-    build:
-      context: ./spark_app
-      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    image: bitnami/spark:3.3.2
     container_name: spark-worker-1
     networks:
       - wm-network
@@ -130,10 +131,9 @@ services:
     depends_on:
       - spark-master
 
+
   spark-worker-2:
-    build:
-      context: ./spark_app
-      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    image: bitnami/spark:3.3.2
     container_name: spark-worker-2
     networks:
       - wm-network
@@ -150,7 +150,7 @@ services:
   # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
-    image: custom-spark:latest
+    image: bitnami/spark:3.3.2
     container_name: spei-calculator-container
     depends_on:
       - mongo
@@ -177,9 +177,7 @@ services:
   # SPEI SCHEDULER SERVICE
   # --------------------------------------------------------------------------
   spei_scheduler:
-    build:
-      context: ./spark_app
-      dockerfile: dockerfiles/Dockerfile.SPEICron
+    image: bitnami/spark:3.3.2
     container_name: spei-scheduler-container
     depends_on:
       - spark-master

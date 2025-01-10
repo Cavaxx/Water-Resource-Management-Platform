@@ -54,9 +54,24 @@ def load_data(spark, mongo_uri, db_name, collection_names):
 
     if not dataframes:
         raise ValueError("No collections to load. Check INPUT_COLLECTIONS environment variable.")
+    
+    # If "rain" is sometimes struct {1h: float}, sometimes a string,
+# unify by extracting numeric precipitation or setting 0.
+    
+
 
     unified_df = dataframes[0]
     for df in dataframes[1:]:
+        df = df.withColumn(
+            "precip", 
+            F.when(F.col("rain").getField("1h").isNotNull(), F.col("rain").getField("1h"))
+            .otherwise(F.col("rain").cast("double"))
+    )
+    # Then drop the old "rain"
+        df = df.drop("rain")
+
+    # Now do union
+        unified_df = unified_df.union(df)
         unified_df = unified_df.union(df)
 
     return unified_df

@@ -102,3 +102,4 @@ for city in cities:
 # Insert synthetic data into MongoDB
 collection.insert_many(synthetic_data)
 print(f"Inserted {len(synthetic_data)} records into the '{COLLECTION_NAME}' collection.")
+

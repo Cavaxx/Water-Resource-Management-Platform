@@ -1,37 +1,31 @@
-# Use the Bitnami Spark 3.5 base image
-FROM bitnami/spark:3.5
+#Dockerfile SPEI calculator
+# Use Bitnami Spark 3.3.2 as base image
+FROM bitnami/spark:3.3.2
 
-# Switch to the root user
+# Switch to root to install packages
 USER root
 
-# Install wget (and anything else you need)
-RUN apt-get update && apt-get install -y wget
+# Install pip and Python dependencies
+RUN apt-get update && apt-get install -y python3-pip wget && \
+    pip3 install --no-cache-dir numpy pandas scipy
 
-# Create a directory for your SPEI Spark script and copy it
-RUN mkdir -p /opt/bitnami/spark/spei_app
-COPY spei_calculator.py /opt/bitnami/spark/spei_app/
-COPY requirements.txt /opt/bitnami/spark/spei_app/
+# Add MongoDB Spark Connector JARs (optional but useful for Mongo integration)
+RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/10.3.0/mongo-spark-connector_2.12-10.3.0.jar && \
+    wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/4.8.2/mongodb-driver-sync-4.8.2.jar && \
+    wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/4.8.2/mongodb-driver-core-4.8.2.jar && \
+    wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/bson/4.8.2/bson-4.8.2.jar && \
+    wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/bson-record-codec/4.8.2/bson-record-codec-4.8.2.jar
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r /opt/bitnami/spark/spei_app/requirements.txt
+# Copy application code (if shared with master)
+COPY ./spark_app /app
+WORKDIR /app
 
-# Download the MongoDB Spark Connector + MongoDB Java Driver jars directly from Maven Central
-# (versions used as in your example)
-RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/10.3.0/mongo-spark-connector_2.12-10.3.0.jar
-RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-sync/4.8.2/mongodb-driver-sync-4.8.2.jar
-RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/mongodb-driver-core/4.8.2/mongodb-driver-core-4.8.2.jar
-RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/bson/4.8.2/bson-4.8.2.jar
-RUN wget -P /opt/bitnami/spark/jars/ https://repo1.maven.org/maven2/org/mongodb/bson-record-codec/4.8.2/bson-record-codec-4.8.2.jar
+# Install application-specific Python dependencies (optional)
+COPY requirements.txt /app/requirements.txt
+RUN pip3 install --no-cache-dir -r /app/requirements.txt
 
-# Optionally confirm presence
-# RUN ls -l /opt/bitnami/spark/jars/ | grep mongo
-
-# Revert to non-root user (Bitnami Spark typically runs as uid 1001 by default)
+# Switch back to non-root user
 USER 1001
 
-# Expose the typical Spark ports
-EXPOSE 7077 8080 8081
-
-# (Optionally) set a default command that runs spark-submit with your SPEI script
-# But usually you'll let docker-compose run the default "start-master.sh" approach.
-CMD ["/opt/bitnami/spark/bin/spark-submit", "--master", "local[*]", "/opt/bitnami/spark/spei_app/spei_calculator.py"]
+# Optional: Default CMD
+CMD ["/opt/bitnami/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
