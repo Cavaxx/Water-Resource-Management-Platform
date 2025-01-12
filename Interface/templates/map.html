@@ -8,17 +8,9 @@
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-
-    <!-- Page CSS -->
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: black;
-            font-family: Arial, sans-serif;
-            color: white;
-        }
 
         /* Navigation Bar */
         nav {
@@ -32,8 +24,14 @@
             text-decoration: none;
             }
 
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
 
-        /* Map Container */
         #map {
             height: 80vh;
             width: 50%;
@@ -63,87 +61,84 @@
             margin: 0;
             color: white;
         }
-
-        
-
-        /* Responsive adjustments */
-        @media screen and (max-width: 768px) {
-
-            #map,
-            .content {
-                width: 50%;
-                height: 50vh;
-                float: none;
-            }
-        }
     </style>
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
     <nav>
         <a href="{{ url_for('home') }}">Search your city</a>
         <a href="{{ url_for('services_page') }}">Our Services</a>
         <a href="{{ url_for('contacts_page') }}">Contacts</a>
     </nav>
 
-    <!-- Map and Content -->
     <div id="map"></div>
-    <div class="content">
-        <p>This interactive maps displays the dams and their current water level.</p>
-    </div>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; Water resources management platform for the
-            <a
-                href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a>
-            project
+            <a href="https://unitn.coursecatalogue.cineca.it/insegnamenti/2024/50296_642725_94365/2011/50296/10185?coorte=2023&schemaid=8396">2024BDT</a> project.
         </p>
     </footer>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- Custom JS to initialize the map -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-
     <script>
         // Initialize the map
-        var map = L.map('map').setView([46.070, 11.121], 13); // Initialize in Trento
+        var map = L.map('map').setView([46.070, 11.121], 13);
 
-        // Add tile layer (Map tiles)
+        // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Try adding other icons
-        var DamIcon = L.icon({
-            iconUrl: "{{ url_for('static', filename='Images/Dams_Icon.png') }}",
-            iconSize:     [30, 50],
-            iconAnchor:   [22, 94],
-            popupAnchor:  [-3, -76]
+        // Fix for missing default marker icons
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon-2x.png',
+            iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+            shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png'
         });
-        L.marker([46.070, 11.121], {icon: DamIcon}).addTo(map);
 
-        // Parse the CSV file
-        fetch("{{ url_for('static', filename='water_facilities_trentino.csv') }}")
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(dam => {
-                if (!isNaN(parseFloat(dam['latitude wgs84'])) && !isNaN(parseFloat(dam['longitude wgs84']))) {
-                    const lat = parseFloat(dam['latitude wgs84']);
-                    const lon = parseFloat(dam['longitude wgs84']);
-                    const from = dam['water body'];
-                    
-                    L.marker([lat, lon])
-                        .addTo(map)
-                        .bindPopup(`<b>Dam collecting water from: ${from}</b><br>Latitude: ${lat}<br>Longitude: ${lon}`);
-                }
-            });
-        })
-        .catch(error => console.error("Error loading data:", error));
+        // Facility data passed from Flask
+        var facilities = {{ facilities | tojson }};
+        console.log(facilities);  // Debugging: Check if data is loaded
+
+        // Add markers for each facility
+        facilities.forEach(function (facility) {
+            var lat = facility.latitude;
+            var lon = facility.longitude;
+            var desc = facility.descrizione || "No description available";
+            var id_site = facility.id_sito;
+            var comuni = facility.comuni_serviti || "Unknown area";
+
+            if (lat && lon) {
+                L.marker([lat, lon])
+                    .addTo(map)
+                    .bindPopup(`<b>${desc}</b><br><b>ID sito:</b> ${id_site}<br><b>Serving:</b> ${comuni}`);
+            }
+        });
+
+        // River data passed from Flask
+        var rivers = {{ rivers | tojson }};
+        console.log(rivers);  // Debugging: Check if data is loaded
+
+        // Add markers for each river
+        rivers.forEach(function (river) {
+            var lat = river.latitude;
+            var lon = river.longitude;
+            var site = river.site || "Unknown river";
+            var height = river.value
+            //var id_sensor = river._id;
+            var time_stamp = river.timestamp|| "No timestamp available";
+
+            if (lat && lon) {
+                L.marker([lat, lon])
+                    .addTo(map)
+                    .bindPopup(`<b>Sensore ${site}</b><br><b>Height:</b> ${height}m<br><b>Last detection:</b> ${time_stamp}`);
+            }
+        });
     </script>
 </body>
+
 </html>

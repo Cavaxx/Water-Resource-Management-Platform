@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # for headless (server) environments
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
 
 app = Flask(__name__)
 
@@ -8,11 +13,15 @@ app = Flask(__name__)
 mongo_client = MongoClient("mongodb://mongo:27017/")
 db = mongo_client["water_management"]
 
+# -----------------------------------------------------------
 # Collections: 
+# -----------------------------------------------------------
 #   - 'SPEI_PET' has e.g. { city: "Trento", month: 1, pet: ..., spei: ... }
 #   - 'water_facilities' has e.g. { nome: "TRENTO", ... }
-spei_pet_collection = db["SPEI_PET"]
-facilities_collection = db["water_facilities"]
+spei_pet_collection = db["SPEI_PET"] # used in search results page
+facilities_collection = db["water_facilities_trento"] # used in map page
+river_collection = db["sensor_data"] # used in map page
+
 
 # (Optional) If you still need a CSV for reference
 csv_path = "/app/data/water_facilities_trentino.csv"
@@ -31,16 +40,14 @@ def get_names_from_csv(file_path):
 city_csv_path = "../app/data/cod_com.csv"
 city_list = get_names_from_csv(city_csv_path)
 
+
+
 # -----------------------------------------------------------
 # Routes to render templates
 # -----------------------------------------------------------
 @app.route('/')
 def home():
     return render_template('Website.html')
-
-@app.route('/map')
-def map_page():
-    return render_template('map.html')
 
 @app.route('/contacts')
 def contacts_page():
@@ -71,14 +78,6 @@ def search_city():
     fac_query = {"nome": city_name.upper()}
     facilities_data = list(facilities_collection.find(fac_query, {"_id": 0}))
 
-    # ---------------------------------
-    # SETUP FOR MATPLOTLIB
-    # ---------------------------------
-    import matplotlib
-    matplotlib.use('Agg')  # for headless (server) environments
-    import matplotlib.pyplot as plt
-    from io import BytesIO
-    import base64
 
     # Only take the first 12 records for charting (if that many exist)
     subset = spei_pet_data[:12]
@@ -150,6 +149,36 @@ def search_city():
         graph_data_spei=graph_data_spei,
         graph_data_drought=graph_data_drought
     )
+
+# ---------------------------------
+# MAP COORDINATES AND INFOS
+# ---------------------------------
+@app.route('/map')
+def map_page():
+    # Query the water facilities collection
+    facilities = list(facilities_collection.find({}, {
+        '_id': 0,
+        'id_sito': 1,
+        'longitude': 1,
+        'latitude': 1,
+        'comuni_serviti': 1,
+        'descrizione': 1
+    }))
+    
+    # Query the river collection
+    rivers = list(river_collection.find({}, {
+        '_id': 0,
+        'timestamp': 1,
+        'site': 1,
+        'value': 1,
+        'longitude': 1,
+        'latitude': 1
+    }))
+
+    return render_template('map.html', 
+                           facilities=facilities,
+                           rivers=rivers)
+
 
 
 if __name__ == '__main__':

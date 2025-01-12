@@ -150,7 +150,9 @@ services:
   # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
-    image: custom-spark:latest
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEICalculator
     container_name: spei-calculator-container
     depends_on:
       - mongo
@@ -172,7 +174,7 @@ services:
       - DB_NAME=water_management
       - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
       - OUTPUT_COLLECTION=SPEI_PET
-
+      
   # --------------------------------------------------------------------------
   # SPEI SCHEDULER SERVICE
   # --------------------------------------------------------------------------
