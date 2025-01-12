@@ -11,4 +11,8 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Switch back to the default user (often '1001' for Bitnami images)
+<<<<<<< HEAD
 USER 1001
+=======
+USER 1001
+>>>>>>> 659998e3136eb31d2f9b64a7cb57637a966ee66f
