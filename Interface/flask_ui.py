@@ -2,11 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
 import pandas as pd
 import matplotlib
-<<<<<<< HEAD
 matplotlib.use('Agg')  # for headless (server) environments
-=======
-matplotlib.use('Agg')  # Use non-interactive backend for headless environments
->>>>>>> 659998e3136eb31d2f9b64a7cb57637a966ee66f
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
@@ -17,7 +13,6 @@ app = Flask(__name__)
 mongo_client = MongoClient("mongodb://mongo:27017/")
 db = mongo_client["water_management"]
 
-<<<<<<< HEAD
 # -----------------------------------------------------------
 # Collections: 
 # -----------------------------------------------------------
@@ -44,11 +39,6 @@ def get_names_from_csv(file_path):
 # Load city names from CSV file
 city_csv_path = "../app/data/cod_com.csv"
 city_list = get_names_from_csv(city_csv_path)
-=======
-# Collections
-spei_pet_collection = db["SPEI_PET"]
-facilities_collection = db["water_facilities_trento"]
->>>>>>> 659998e3136eb31d2f9b64a7cb57637a966ee66f
 
 
 
@@ -84,12 +74,8 @@ def search_city():
     facilities_query = {"nome": {"$regex": city_name, "$options": "i"}}
     facilities_data = list(facilities_collection.find(facilities_query, {"_id": 0}))
 
-<<<<<<< HEAD
 
     # Only take the first 12 records for charting (if that many exist)
-=======
-    # Prepare data for the Drought chart (using first 12 records)
->>>>>>> 659998e3136eb31d2f9b64a7cb57637a966ee66f
     subset = spei_pet_data[:12]
     months = [rec.get("month") for rec in subset]
     drought_values = [rec.get("drought") for rec in subset]
@@ -128,7 +114,6 @@ def search_city():
         graph_data_drought=graph_data_drought
     )
 
-<<<<<<< HEAD
 # ---------------------------------
 # MAP COORDINATES AND INFOS
 # ---------------------------------
@@ -160,8 +145,6 @@ def map_page():
 
 
 
-=======
->>>>>>> 659998e3136eb31d2f9b64a7cb57637a966ee66f
 if __name__ == '__main__':
     # Debug mode for local development; 0.0.0.0 to listen on all interfaces in Docker
     app.run(debug=True, host='0.0.0.0', port=5001)

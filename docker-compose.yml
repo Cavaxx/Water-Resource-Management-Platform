@@ -115,38 +115,6 @@ services:
     depends_on:
       - mongo
 
-  spark-worker-1:
-    build:
-      context: ./spark_app
-      dockerfile: dockerfiles/Dockerfile.SPEIWorker
-    container_name: spark-worker-1
-    networks:
-      - wm-network
-    environment:
-      SPARK_MODE: worker
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
-      SPARK_MASTER_URL: spark://spark-master:7077
-    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
-    depends_on:
-      - spark-master
-
-  spark-worker-2:
-    build:
-      context: ./spark_app
-      dockerfile: dockerfiles/Dockerfile.SPEIWorker
-    container_name: spark-worker-2
-    networks:
-      - wm-network
-    environment:
-      SPARK_MODE: worker
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
-      SPARK_MASTER_URL: spark://spark-master:7077
-    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
-    depends_on:
-      - spark-master
-
   # --------------------------------------------------------------------------
   # SPEI CALCULATOR SERVICE using a public Spark image
   # --------------------------------------------------------------------------

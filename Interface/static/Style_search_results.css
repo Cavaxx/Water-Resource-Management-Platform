@@ -6,6 +6,7 @@ body {
     color: white;
 }
 
+
 /* Navigation */
 nav {
     background-color: rgba(0, 0, 0, 0.7);
@@ -19,16 +20,24 @@ nav a {
     text-decoration: none;
 }
 
+/* Header */
+header {
+    text-align: center;
+
+}
+
 /* Main Content */
 main {
     padding: 2rem;
     background-color: rgba(0, 0, 0, 0.5);
 }
 
+/*
 main h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-}
+    text-align: left;
+    margin-bottom: 2rem;   ///////need to revision position of headers
+} 
+*/
 
 /* NEW: to display two charts side by side */
 .chart-container {
