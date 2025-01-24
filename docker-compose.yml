@@ -6,12 +6,12 @@ services:
   # --------------------------------------------------------------------------
   flask_app:
     build:
-      context: ./Interface  # The directory containing Dockerfile and app files for Flask
+      context: ./Interface
     container_name: flask_app_container
     ports:
       - "5001:5001"
     volumes:
-      - ./Interface:/app   # Mount your Flask app directory
+      - ./Interface:/app
       - ./data:/app/data
     networks:
       - wm-network
@@ -33,7 +33,6 @@ services:
 
   # --------------------------------------------------------------------------
   # DATA MANAGEMENT SERVICES
-  # (Services unchanged)
   # --------------------------------------------------------------------------
   fetch_insert_data:
     build:
@@ -95,7 +94,6 @@ services:
 
   # --------------------------------------------------------------------------
   # SPARK CLUSTER (MASTER + WORKERS)
-  # (Services unchanged)
   # --------------------------------------------------------------------------
   spark-master:
     build:
@@ -115,8 +113,40 @@ services:
     depends_on:
       - mongo
 
+  spark-worker-1:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-1
+    networks:
+      - wm-network
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
+    depends_on:
+      - spark-master
+
+  spark-worker-2:
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEIWorker
+    container_name: spark-worker-2
+    networks:
+      - wm-network
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+    command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
+    depends_on:
+      - spark-master
+
   # --------------------------------------------------------------------------
-  # SPEI CALCULATOR SERVICE using a public Spark image
+  # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
     build:
@@ -143,11 +173,7 @@ services:
       - DB_NAME=water_management
       - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
       - OUTPUT_COLLECTION=SPEI_PET
-      
-  # --------------------------------------------------------------------------
-  # SPEI SCHEDULER SERVICE
-  # (Service unchanged)
-  # --------------------------------------------------------------------------
+
   spei_scheduler:
     build:
       context: ./spark_app
@@ -173,4 +199,4 @@ volumes:
 
 networks:
   wm-network:
-    driver: bridge 
+    driver: bridge
