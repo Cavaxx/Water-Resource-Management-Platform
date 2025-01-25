@@ -6,12 +6,12 @@ services:
   # --------------------------------------------------------------------------
   flask_app:
     build:
-      context: ./Interface  # The directory containing Dockerfile and app files for Flask
+      context: ./Interface
     container_name: flask_app_container
     ports:
       - "5001:5001"
     volumes:
-      - ./Interface:/app   # Mount your Flask app directory
+      - ./Interface:/app
       - ./data:/app/data
     networks:
       - wm-network
@@ -112,7 +112,6 @@ services:
       - "7077:7077"  # Spark Master RPC
     depends_on:
       - mongo
-    
 
   spark-worker-1:
     build:
@@ -122,10 +121,10 @@ services:
     networks:
       - wm-network
     environment:
-      SPARK_MODE: worker
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
-      SPARK_MASTER_URL: spark://spark-master:7077
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
     command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
@@ -138,10 +137,10 @@ services:
     networks:
       - wm-network
     environment:
-      SPARK_MODE: worker
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
-      SPARK_MASTER_URL: spark://spark-master:7077
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
     command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
@@ -150,7 +149,9 @@ services:
   # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
-    image: custom-spark:latest
+    build:
+      context: ./spark_app
+      dockerfile: dockerfiles/Dockerfile.SPEICalculator
     container_name: spei-calculator-container
     depends_on:
       - mongo
@@ -173,9 +174,6 @@ services:
       - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
       - OUTPUT_COLLECTION=SPEI_PET
 
-  # --------------------------------------------------------------------------
-  # SPEI SCHEDULER SERVICE
-  # --------------------------------------------------------------------------
   spei_scheduler:
     build:
       context: ./spark_app

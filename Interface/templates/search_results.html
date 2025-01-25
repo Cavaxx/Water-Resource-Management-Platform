@@ -2,78 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Search Results for "{{ query }}"</title>
-    <!-- CSS link for search results (optional) -->
+    <title>Search Results for {{ query }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='Style_search_results.css') }}">
 </head>
 <body>
-    <!-- Navigation Bar -->
+        <!-- Navigation Bar -->   
     <nav>
-        <a href="{{ url_for('home') }}">Home</a>
         <a href="{{ url_for('map_page') }}">Map</a>
+        <a href="{{ url_for('services_page') }}">Our Services</a>
         <a href="{{ url_for('contacts_page') }}">Contacts</a>
     </nav>
+    
+    <!-- Header Section -->
+    <header>
+        <h1>Search Results for {{ query }}</h1>
+    </header>
+    
 
     <!-- Main Content -->
     <main>
-        <!-- Show the city name as a header -->
-        <h2>Search Results for "{{ query }}"</h2>
+    {% if graph_data_drought %}
+        <h2>Drought Index</h2>
+        <img src="data:image/png;base64,{{ graph_data_drought }}" alt="Drought Chart">
+    {% else %}
+        <p>No Drought data available for {{ query }}.</p>
+    {% endif %}
 
-        <!-- Here is the new container for the two charts side by side -->
-        <div class="chart-container">
-            <!-- SPEI Chart -->
-            {% if graph_data_spei %}
-                <div>
-                    <h3>SPEI Chart</h3>
-                    <img src="data:image/png;base64,{{ graph_data_spei }}" alt="SPEI chart for {{ query }}">
-                </div>
-            {% else %}
-                <p>No SPEI chart data available.</p>
-            {% endif %}
-
-            <!-- Drought Chart -->
-            {% if graph_data_drought %}
-                <div>
-                    <h3>Drought Chart</h3>
-                    <img src="data:image/png;base64,{{ graph_data_drought }}" alt="Drought chart for {{ query }}">
-                </div>
-            {% else %}
-                <p>No Drought chart data available.</p>
-            {% endif %}
-        </div>
-
-        <!-- Example of continuing to show table data or any other info -->
-        {% if spei_pet_data %}
-            <h3>SPEI/PET Data (All Records):</h3>
-            <ul>
-                {% for record in spei_pet_data %}
-                    <li>
-                        <strong>Month:</strong> {{ record.month }}<br>
-                        <strong>SPEI:</strong> {{ record.spei }}<br>
-                        <strong>Drought:</strong> {{ record.drought }}<br>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No SPEI/PET data for this city.</p>
-        {% endif %}
-
-        {% if facilities_data %}
-            <h3>Facilities Data:</h3>
-            <ul>
-                {% for facility in facilities_data %}
-                    <li>
-                        <strong>Name (nome):</strong> {{ facility.nome }}<br>
-                        <strong>Address (indirizzo):</strong> {{ facility.indirizzo }}<br>
-                        <strong>Latitude:</strong> {{ facility.latitude }}<br>
-                        <strong>Longitude:</strong> {{ facility.longitude }}<br>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No facilities data found for this city.</p>
-        {% endif %}
-    </main>
+    <h2>Water Facilities</h2>
+    {% if facilities_data %}
+        <ul>
+            {% for facility in facilities_data %}
+                <li>
+                    <strong>Name:</strong> {{ facility.nome }}<br>
+                    <strong>Address:</strong> {{ facility.indirizzo }}<br>
+                    <strong>Description:</strong> {{ facility.descrizione }}<br>
+                    <strong>Coordinates:</strong> ({{ facility.latitude }}, {{ facility.longitude }})<br>
+                    <strong>Altitude:</strong> {{ facility.altezza_mslm }} m MSLM<br>
+                    <strong>Receiver:</strong> {{ facility.recettore }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No water facilities found for {{ query }}.</p>
+    {% endif %}
+</body>
+</html>
 
     <!-- Footer -->
     <footer>

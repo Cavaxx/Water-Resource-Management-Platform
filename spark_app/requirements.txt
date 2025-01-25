@@ -2,7 +2,10 @@
 pyspark==3.3.2
 climate-indices
 numpy
+pandas
 scipy
 xarray
 netCDF4
+datetime
+pymongo
 # (no pinned versions)
