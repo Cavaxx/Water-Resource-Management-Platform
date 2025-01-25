@@ -24,11 +24,6 @@
     <main>
         <h2>Check your city status:</h2>
         <div class="search-container">
-<<<<<<< HEAD
-            <form action="{{ url_for('get_weather') }}" method="post">
-                <input type="text" name="city" placeholder="Search your city..." class="search-bar" required>
-                <button type="submit" class="search-button">Search</button>
-=======
             <!-- Wrap the input in a form with action pointing to the search route -->
             <form action="{{ url_for('search_city') }}" method="get">
                 <!-- "city" must match the Python request.args.get("city") -->
@@ -36,7 +31,6 @@
                 <button type="submit">Search</button>
             
 
->>>>>>> Develop
             </form>
         </div>
     </main>
