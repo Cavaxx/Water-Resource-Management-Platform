@@ -32,7 +32,47 @@ services:
       - wm-network
 
   # --------------------------------------------------------------------------
+  # MQTT BROKER
+  # --------------------------------------------------------------------------
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"   # MQTT Default Port
+    networks:
+      - wm-network
+    # (Optional) If you want to persist logs/data for Mosquitto:
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # --------------------------------------------------------------------------
+  # MQTT INGESTION SERVICE
+  # --------------------------------------------------------------------------
+  mqtt_ingestion_service:
+    build:
+      context: ./data_ingestion
+      dockerfile: Dockerfile
+    container_name: mqtt_ingestion_service
+    depends_on:
+      - mongo
+      - mqtt-broker
+    networks:
+      - wm-network
+    environment:
+      # Ensure the ingestion script uses these vars:
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongodb_container:27017/
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
+      # Define the MQTT topics you plan to subscribe to:
+      - TOPICS=city/water_facilities,sensors_data/river,weather_data/city,SPET/PET/city
+    command: ["python", "mqtt_ingestion.py"]
+
+  # --------------------------------------------------------------------------
   # DATA MANAGEMENT SERVICES
+  # (Now each fetcher/publisher can publish to MQTT if desired)
   # --------------------------------------------------------------------------
   fetch_insert_data:
     build:
@@ -41,11 +81,14 @@ services:
     container_name: fetch_insert_data_container
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "fetch_insert_data_MDB.py"]
 
   fetch_insert_facilitiesdata:
@@ -55,11 +98,14 @@ services:
     container_name: fetch_insert_facilitiesdata_container
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "fetch_insert_facilitesdata_MDB.py"]
 
   fetch_weather_data:
@@ -69,12 +115,15 @@ services:
     container_name: fetch_weather_data_container
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
       - WEATHER_API_KEY=YOUR_API_KEY
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "fetch_weather_data.py"]
 
   synthetic_weather_data:
@@ -84,12 +133,15 @@ services:
     container_name: synthetic_weather_data_service
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
-      - MONGO_URI=mongodb://mongo:27017/
+      - MONGO_URI=mongodb://mongodb_container:27017/
       - DB_NAME=weather_db
       - COLLECTION_NAME=synthetic_weather_data
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "synthetic_weather_data.py"]
 
   # --------------------------------------------------------------------------
@@ -196,6 +248,8 @@ services:
 
 volumes:
   mongo-data:
+  mosquitto_data:
+  mosquitto_log:
 
 networks:
   wm-network:
