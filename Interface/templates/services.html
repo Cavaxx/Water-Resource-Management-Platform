@@ -23,13 +23,13 @@
         <!-- Main Content Section -->
         <main>
             <div class="button-container">
-                <a href="{{ url_for('services_page', service='dams') }}" class="service-button">
+                <a href="{{url_for('map_page')  }}" class="service-button">
                     <div class="service-content">
                         <img src="{{ url_for('static', filename='Images/diga.jpg') }}" alt="Dams Service">
                         <h2>Water Facilities</h2>
                     </div>
                 </a>
-                <a href="{{ url_for('services_page', service='rivers') }}" class="service-button">
+                <a href="{{ url_for('map_page') }}" class="service-button">
                     <div class="service-content">
                         <img src="{{ url_for('static', filename='Images/lago.jpg') }}" alt="Rivers Service">
                         <h2>Rivers</h2>
