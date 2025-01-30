@@ -19,7 +19,7 @@ Project Structure
 - Matplotlib & Pandas: Used for data analysis and visualization within the Flask app​
 - Python Scheduling & Requests Libraries: Automates regular data fetching and processing tasks​
 
-![System Architecture](System_architecture.png)
+![System Architecture](System_Architecture.png)
 
 
 ## Project Structure
