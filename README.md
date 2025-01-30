@@ -1,4 +1,4 @@
- Water Resource Management Platform
+# Water Resource Management Platform
 
 This project aims to design a comprehensive platform for managing water resources and the facilities processing water bodies in the Trentino region. The system collects data from various sources, providing users with real-time weather updates for their city, the monthly drought index, and the annual SPEI (Standardized Precipitation-Evapotranspiration Index). It also features a map showcasing water facilities and dams within the region, along with their real-time water levels.
 Project Structure
@@ -19,13 +19,11 @@ Project Structure
 - Matplotlib & Pandas: Used for data analysis and visualization within the Flask app​
 - Python Scheduling & Requests Libraries: Automates regular data fetching and processing tasks​
 
-!System Architecture
+![System Architecture](System_architecture.png)
 
 
 ## Project Structure
-copy
-
-
+```
 .
 ├── Interface
 │   ├── Dockerfile
@@ -59,20 +57,17 @@ copy
 ├── docker-compose.yml
 ├── start.sh
 └── README.md
- 
+ ```
 
 
 ## Setup and Configuration
 ### API key setup
 In order to be able to access realtime weather data it is important to have an API key. You can get one from this website https://openweathermap.org/ , if you are the Professor of BDT you can use the one we sent by email with the project paper.
-The key should be saved in your environment as YOUR_API_KEY, you can do it like this:
- e
-Bash
-
-
-xport YOUR_API_KEY="your_actual_api_key"  # Linux/MacOS
-set YOUR_API_KEY="your_actual_api_key"  # Windows
- 
+The key should be saved in your environment as `YOUR_API_KEY`, you can do it like this:
+ ```
+export YOUR_API_KEY="your_actual_api_key"  # Linux/MacOS
+set YOUR_API_KEY="your_actual_api_key" 	# Windows
+ ```
 Ensure it is correctly set up before running the application.
 
 
@@ -84,26 +79,15 @@ After cloning this repository on your machine, install Docker and follows these 
 
 ### Clean the environment:
 
- do
-Bash
-
-
-cker-compose down --remove-orphans
-   
-  
+ ```
+docker-compose down --remove-orphans
+ ```    
+
 ### Start Docker:
 
- doc
-copy
-
-
-ker-compose up --build
- 
+ ```
+docker-compose up --build
+ ```
 
-#
-## Access the user interface at http://127.0.0.1:5001.
+### Access the user interface at http://127.0.0.1:5001.
 
-
-## Autors
-- Davide Cavallaro @Cavaxx
-- Maria Amalia Pelle @pariamelle
