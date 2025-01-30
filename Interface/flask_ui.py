@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from pymongo import MongoClient
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend for headless environments
+matplotlib.use('Agg')  # for headless (server) environments
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
@@ -13,9 +13,34 @@ app = Flask(__name__)
 mongo_client = MongoClient("mongodb://mongo:27017/")
 db = mongo_client["water_management"]
 
-# Collections
-spei_pet_collection = db["SPEI_PET"]
-facilities_collection = db["water_facilities_trento"]
+# -----------------------------------------------------------
+# Collections: 
+# -----------------------------------------------------------
+#   - 'SPEI_PET' has e.g. { city: "Trento", month: 1, pet: ..., spei: ... }
+#   - 'water_facilities' has e.g. { nome: "TRENTO", ... }
+spei_pet_collection = db["SPEI_PET"] # used in search results page
+facilities_collection = db["water_facilities_trento"] # used in map page
+river_collection = db["sensor_data"] # used in map page
+
+
+# (Optional) If you still need a CSV for reference
+csv_path = "/app/data/water_facilities_trentino.csv"
+try:
+    facilities_df = pd.read_csv(csv_path)
+    facilities_df.set_index("id_sito", inplace=True)
+except Exception as e:
+    print(f"Error loading CSV data: {e}")
+
+# Save City name list for search bar
+def get_names_from_csv(file_path):
+    df = pd.read_csv(file_path)
+    return df['Denominazione in italiano'].tolist()
+
+# Load city names from CSV file
+city_csv_path = "../app/data/cod_com.csv"
+city_list = get_names_from_csv(city_csv_path)
+
+
 
 # -----------------------------------------------------------
 # Routes to render templates
@@ -23,10 +48,6 @@ facilities_collection = db["water_facilities_trento"]
 @app.route('/')
 def home():
     return render_template('Website.html')
-
-@app.route('/map')
-def map_page():
-    return render_template('map.html')
 
 @app.route('/contacts')
 def contacts_page():
@@ -53,7 +74,8 @@ def search_city():
     facilities_query = {"nome": {"$regex": city_name, "$options": "i"}}
     facilities_data = list(facilities_collection.find(facilities_query, {"_id": 0}))
 
-    # Prepare data for the Drought chart (using first 12 records)
+
+    # Only take the first 12 records for charting (if that many exist)
     subset = spei_pet_data[:12]
     months = [rec.get("month") for rec in subset]
     drought_values = [rec.get("drought") for rec in subset]
@@ -91,6 +113,37 @@ def search_city():
         facilities_data=facilities_data,
         graph_data_drought=graph_data_drought
     )
+
+# ---------------------------------
+# MAP COORDINATES AND INFOS
+# ---------------------------------
+@app.route('/map')
+def map_page():
+    # Query the water facilities collection
+    facilities = list(facilities_collection.find({}, {
+        '_id': 0,
+        'id_sito': 1,
+        'longitude': 1,
+        'latitude': 1,
+        'comuni_serviti': 1,
+        'descrizione': 1
+    }))
+    
+    # Query the river collection
+    rivers = list(river_collection.find({}, {
+        '_id': 0,
+        'timestamp': 1,
+        'site': 1,
+        'value': 1,
+        'longitude': 1,
+        'latitude': 1
+    }))
+
+    return render_template('map.html', 
+                           facilities=facilities,
+                           rivers=rivers)
+
+
 
 if __name__ == '__main__':
     # Debug mode for local development; 0.0.0.0 to listen on all interfaces in Docker

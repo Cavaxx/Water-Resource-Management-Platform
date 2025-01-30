@@ -9,20 +9,13 @@ body {
         /* Navigation Bar */
         nav {
             background-color: rgba(0, 0, 0, 0.7);
-            padding:  1rem;
+            padding: 1rem;
             text-align: right;
         }
-
         nav a {
             color: white;
-            margin: 0 20px;
+            margin: 1rem;
             text-decoration: none;
-            font-size: 18px;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
 
         /* Map Container */
         #map {

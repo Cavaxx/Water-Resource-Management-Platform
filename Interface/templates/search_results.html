@@ -3,10 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Search Results for {{ query }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style_search_results.css') }}">
 </head>
 <body>
-    <h1>Search Results for {{ query }}</h1>
+        <!-- Navigation Bar -->   
+    <nav>
+        <a href="{{ url_for('map_page') }}">Map</a>
+        <a href="{{ url_for('services_page') }}">Our Services</a>
+        <a href="{{ url_for('contacts_page') }}">Contacts</a>
+    </nav>
+    
+    <!-- Header Section -->
+    <header>
+        <h1>Search Results for {{ query }}</h1>
+    </header>
+    
 
+    <!-- Main Content -->
+    <main>
     {% if graph_data_drought %}
         <h2>Drought Index</h2>
         <img src="data:image/png;base64,{{ graph_data_drought }}" alt="Drought Chart">

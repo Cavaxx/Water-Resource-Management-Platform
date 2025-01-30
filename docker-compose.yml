@@ -7,12 +7,12 @@ services:
   # --------------------------------------------------------------------------
   flask_app:
     build:
-      context: ./Interface  # The directory containing Dockerfile and app files for Flask
+      context: ./Interface
     container_name: flask_app_container
     ports:
       - "5001:5001"
     volumes:
-      - ./Interface:/app   # Mount your Flask app directory
+      - ./Interface:/app
       - ./data:/app/data
     networks:
       - wm-network
@@ -34,8 +34,47 @@ services:
       - wm-network
 
   # --------------------------------------------------------------------------
+  # MQTT BROKER
+  # --------------------------------------------------------------------------
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"   # MQTT Default Port
+    networks:
+      - wm-network
+    # (Optional) If you want to persist logs/data for Mosquitto:
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # --------------------------------------------------------------------------
+  # MQTT INGESTION SERVICE
+  # --------------------------------------------------------------------------
+  mqtt_ingestion_service:
+    build:
+      context: ./data_ingestion
+      dockerfile: Dockerfile
+    container_name: mqtt_ingestion_service
+    depends_on:
+      - mongo
+      - mqtt-broker
+    networks:
+      - wm-network
+    environment:
+      # Ensure the ingestion script uses these vars:
+      - PYTHONUNBUFFERED=1
+      - MONGO_URI=mongodb://mongodb_container:27017/
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
+      # Define the MQTT topics you plan to subscribe to:
+      - TOPICS=city/water_facilities,sensors_data/river,weather_data/city,SPET/PET/city
+    command: ["python", "mqtt_ingestion.py"]
+
+  # --------------------------------------------------------------------------
   # DATA MANAGEMENT SERVICES
-  # (Services unchanged)
+  # (Now each fetcher/publisher can publish to MQTT if desired)
   # --------------------------------------------------------------------------
   fetch_insert_data:
     build:
@@ -44,11 +83,14 @@ services:
     container_name: fetch_insert_data_container
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "fetch_insert_data_MDB.py"]
 
   fetch_insert_facilitiesdata:
@@ -58,11 +100,14 @@ services:
     container_name: fetch_insert_facilitiesdata_container
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "fetch_insert_facilitesdata_MDB.py"]
 
   fetch_weather_data:
@@ -72,12 +117,15 @@ services:
     container_name: fetch_weather_data_container
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
       - PYTHONUNBUFFERED=1
       - MONGO_URI=mongodb://mongodb_container:27017/water_management
       - WEATHER_API_KEY=YOUR_API_KEY
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "fetch_weather_data.py"]
 
   synthetic_weather_data:
@@ -87,17 +135,19 @@ services:
     container_name: synthetic_weather_data_service
     depends_on:
       - mongo
+      - mqtt-broker
     networks:
       - wm-network
     environment:
-      - MONGO_URI=mongodb://mongo:27017/
+      - MONGO_URI=mongodb://mongodb_container:27017/
       - DB_NAME=weather_db
       - COLLECTION_NAME=synthetic_weather_data
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
     command: ["python", "synthetic_weather_data.py"]
 
   # --------------------------------------------------------------------------
   # SPARK CLUSTER (MASTER + WORKERS)
-  # (Services unchanged)
   # --------------------------------------------------------------------------
   spark-master:
     build:
@@ -125,10 +175,10 @@ services:
     networks:
       - wm-network
     environment:
-      SPARK_MODE: worker
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
-      SPARK_MASTER_URL: spark://spark-master:7077
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
     command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
@@ -141,16 +191,16 @@ services:
     networks:
       - wm-network
     environment:
-      SPARK_MODE: worker
-      SPARK_WORKER_CORES: 2
-      SPARK_WORKER_MEMORY: 2g
-      SPARK_MASTER_URL: spark://spark-master:7077
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
     command: [ "bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077" ]
     depends_on:
       - spark-master
 
   # --------------------------------------------------------------------------
-  # SPEI CALCULATOR SERVICE using a public Spark image
+  # SPEI CALCULATOR SERVICE
   # --------------------------------------------------------------------------
   spei_calculator:
     build:
@@ -178,10 +228,6 @@ services:
       - INPUT_COLLECTIONS=weather_data,synthetic_weather_data
       - OUTPUT_COLLECTION=SPEI_PET
 
-  # --------------------------------------------------------------------------
-  # SPEI SCHEDULER SERVICE
-  # (Service unchanged)
-  # --------------------------------------------------------------------------
   spei_scheduler:
     build:
       context: ./spark_app
@@ -204,7 +250,9 @@ services:
 
 volumes:
   mongo-data:
+  mosquitto_data:
+  mosquitto_log:
 
 networks:
   wm-network:
-    driver: bridge 
+    driver: bridge

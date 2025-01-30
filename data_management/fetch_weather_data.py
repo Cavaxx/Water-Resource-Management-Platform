@@ -1,37 +1,52 @@
 import os
+import json
 import requests
 import logging
-from pymongo import MongoClient
-from datetime import datetime
 import time
 import schedule
+import paho.mqtt.client as mqtt
+from datetime import datetime
 
-# Setup logging
-logging.basicConfig(filename='weather_data_fetcher.log', level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+# ------------------------------------------------------------------------------
+# Logging Setup
+# ------------------------------------------------------------------------------
+logging.basicConfig(
+    filename='weather_data_fetcher.log',
+    level=logging.INFO,
+    format='%(asctime)s:%(levelname)s:%(message)s'
+)
 
-# MongoDB setup
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongo:27017/")
-client = MongoClient(MONGO_URI)
-db = client["water_management"]
-weather_collection = db["weather_data"]
+# ------------------------------------------------------------------------------
+# MQTT Configuration
+# ------------------------------------------------------------------------------
+MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
+MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
+MQTT_TOPIC = "weather_data/city"  # Publish weather data here
 
-# Weather API setup
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")  # Store your API key as an environment variable
+mqtt_client = mqtt.Client()
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
 
-def store_weather_data(weather_data):
+# ------------------------------------------------------------------------------
+# Weather API Setup
+# ------------------------------------------------------------------------------
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")  # Ensure your API key is set via environment variable
+
+# ------------------------------------------------------------------------------
+# Functions
+# ------------------------------------------------------------------------------
+def publish_weather_data(weather_data):
     """
-    Store weather data into the MongoDB collection.
-
+    Build a document from the weather data and publish it to MQTT.
+    
     Args:
-        weather_data (dict): The weather data JSON response from the API.
+        weather_data (dict): The raw JSON response from OpenWeatherMap API.
     """
     try:
         # Extract relevant fields
         document = {
             "city": weather_data.get("name"),
             "coordinates": weather_data.get("coord"),
-            "weather": weather_data.get("weather")[0],  # Assuming only one weather condition
+            "weather": weather_data.get("weather", [{}])[0],  # Weather condition (assuming only one)
             "temperature": weather_data.get("main", {}).get("temp"),
             "feels_like": weather_data.get("main", {}).get("feels_like"),
             "temp_min": weather_data.get("main", {}).get("temp_min"),
@@ -46,21 +61,28 @@ def store_weather_data(weather_data):
             "timestamp": weather_data.get("dt")
         }
 
-        # Insert into MongoDB
-        result = weather_collection.insert_one(document)
-        logging.info(f"Weather data for {weather_data.get('name')} inserted with ID: {result.inserted_id}")
+        # Convert the document to JSON
+        payload = json.dumps(document)
+
+        # Publish to MQTT
+        result = mqtt_client.publish(MQTT_TOPIC, payload)
+        if result.rc == 0:
+            logging.info(f"Weather data for {weather_data.get('name')} published to '{MQTT_TOPIC}'.")
+        else:
+            logging.error(f"Failed to publish weather data. MQTT result code: {result.rc}")
 
     except Exception as e:
-        logging.error(f"Failed to store weather data: {e}")
+        logging.error(f"Failed to publish weather data: {e}")
 
 def fetch_weather_data_current(location, api_key=WEATHER_API_KEY):
     """
-    Fetch current weather data for a specific city.
+    Fetch current weather data for a specific city and publish via MQTT.
     """
     if not api_key:
         logging.error("WEATHER_API_KEY environment variable not set.")
         return
-    WEATHER_API_URL = f"http://api.openweathermap.org/data/2.5/weather"
+    
+    WEATHER_API_URL = "http://api.openweathermap.org/data/2.5/weather"
     params = {
         'q': location,
         'appid': api_key,
@@ -70,18 +92,17 @@ def fetch_weather_data_current(location, api_key=WEATHER_API_KEY):
         response = requests.get(WEATHER_API_URL, params=params)
         if response.status_code == 200:
             weather_data = response.json()
-            store_weather_data(weather_data)  # Save to MongoDB
+            publish_weather_data(weather_data)  # Publish to MQTT instead of MongoDB
             logging.info(f"Successfully fetched weather data for {location}.")
         else:
             logging.error(f"Failed to fetch data for {location}. Status code: {response.status_code} - {response.text}")
     except Exception as e:
         logging.error(f"Error fetching weather data for {location}: {e}")
 
-def fetch_and_store_weather_data():
+def fetch_and_publish_weather_data():
     """
-    Fetch and store weather data for a list of locations.
+    Fetch and publish weather data for a list of Trentino cities.
     """
-    # List of locations (comuni_trentino)
     comuni_trentino = [
         "Trento",
         "Rovereto",
@@ -101,14 +122,14 @@ def fetch_and_store_weather_data():
         time.sleep(1)  # Sleep for 1 second to avoid hitting rate limits
 
 def main():
-    # Run the job immediately at startup
-    fetch_and_store_weather_data()
+    # Run immediately at startup
+    fetch_and_publish_weather_data()
 
     # Schedule the job to run every 24 hours
-    schedule.every(24).hours.do(fetch_and_store_weather_data)
+    schedule.every(24).hours.do(fetch_and_publish_weather_data)
 
-    # Alternatively, schedule the job to run at a specific time every day
-    # schedule.every().day.at("06:00").do(fetch_and_store_weather_data)
+    # Alternatively, you could schedule the job to run at a specific time:
+    # schedule.every().day.at("06:00").do(fetch_and_publish_weather_data)
 
     logging.info("Scheduler started. The script will fetch weather data every 24 hours.")
     while True:
