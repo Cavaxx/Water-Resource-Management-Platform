@@ -18,7 +18,8 @@ Project Structure
 - Climate-Indices Library: Computes drought indices using methods like Thornthwaite PET and SPEI calculations​
 - Matplotlib & Pandas: Used for data analysis and visualization within the Flask app​
 - Python Scheduling & Requests Libraries: Automates regular data fetching and processing tasks​
-  ```
+
+```
 .
 ├── Interface
 │   ├── Dockerfile
@@ -29,8 +30,6 @@ Project Structure
 │   │   └── ..
 │   ├── templates
 │   │   └── ..
-│   ├── data
-│   │   └── cod_com.csv
 │   └── ..
 ├── data_management
 │   ├── Dockerfile
@@ -40,11 +39,11 @@ Project Structure
 │   ├── mqtt_river_fetcher.ipynb
 │   ├── mqtt_river_fetcher.py
 │   ├── requirements.txt
-│   ├── synthetic_weather_data.py
-│   └── water_management.log
+│   └──  synthetic_weather_data.py
 ├── data
 │   ├── rivers
 │   │   └── ..
+│   ├── cod_com.csv
 │   ├── index_of_sensors.csv
 │   ├── water_facilities_trentino.csv
 │   ├── weather_data.json
