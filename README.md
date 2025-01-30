@@ -91,5 +91,7 @@ docker-compose up --build
 
 ### Access the user interface at http://127.0.0.1:5001.
 
-## Components Description
-[...]
+
+## Autors
+- Davide Cavallaro @Cavaxx
+- Maria Amalia Pelle @pariamelle
