@@ -45,8 +45,6 @@ Project Structure
 │   ├── requirements.txt
 │   └──  synthetic_weather_data.py
 ├── data
-│   ├── rivers
-│   │   └── ..
 │   ├── cod_com.csv
 │   ├── index_of_sensors.csv
 │   ├── water_facilities_trentino.csv
