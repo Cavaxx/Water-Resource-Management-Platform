@@ -50,6 +50,10 @@ Project Structure
 │   ├── water_facilities_trentino.csv
 │   ├── weather_data.json
 │   └── ..
+├── data_ingestion
+│   ├── Dockerfile
+│   ├── mqtt_ingestion.py
+│   └── requirements.txt
 ├── spark_app
 │   └── ...
 ├── docker-compose.yml
