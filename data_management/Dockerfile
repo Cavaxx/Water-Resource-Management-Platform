@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
-    libatlas-base-dev \
+    libopenblas-dev \
     libffi-dev \
     libssl-dev \
     python3-dev \
